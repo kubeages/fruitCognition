@@ -32,6 +32,7 @@ from common.cors import get_cors_allowed_origins
 from agents.supervisors.auction.graph import shared
 from agents.supervisors.auction.api import create_apps_router
 from api.admin.router import create_admin_router
+from cognition.services.intent_manager import IntentManager
 from config.config import DEFAULT_MESSAGE_TRANSPORT, LLM_MODEL, HOT_RELOAD_MODE, OTEL_SDK_DISABLED
 from pathlib import Path
 from common.streaming_capability import require_streaming_capability
@@ -102,6 +103,8 @@ app.include_router(
 class PromptRequest(BaseModel):
   prompt: str
 
+intent_manager = IntentManager()
+
 @app.get("/.well-known/agent.json")
 async def get_capabilities():
   """
@@ -158,11 +161,17 @@ async def handle_prompt(request: PromptRequest, req: Request):
   if exchange_graph is None:
     raise HTTPException(status_code=503, detail="Service initializing")
   try:
+    intent = intent_manager.create_from_prompt(request.prompt)
     with session_start() as session_id:
       # Execute the graph synchronously - blocks until completion
-      result = await exchange_graph.serve(request.prompt)
+      result = await exchange_graph.serve(request.prompt, intent_id=intent.intent_id)
       logger.info(f"Final result from LangGraph: {result}")
-      return {"response": result, "session_id": session_id["executionID"]}
+      return {
+        "response": result,
+        "session_id": session_id["executionID"],
+        "intent_id": intent.intent_id,
+        "intent": intent.model_dump(),
+      }
   except ValueError as ve:
     raise HTTPException(status_code=400, detail=str(ve))
   except Exception as e:
@@ -191,6 +200,7 @@ async def handle_stream_prompt(request: PromptRequest, req: Request):
     if exchange_graph is None:
         raise HTTPException(status_code=503, detail="Service initializing")
     try:
+        intent = intent_manager.create_from_prompt(request.prompt)
         with session_start() as session_id:  # Start a new tracing session for observability
 
           async def stream_generator():
@@ -200,8 +210,12 @@ async def handle_stream_prompt(request: PromptRequest, req: Request):
               """
               try:
                   # Stream chunks from the graph as nodes complete execution
-                  async for chunk in exchange_graph.streaming_serve(request.prompt):
-                      yield json.dumps({"response": chunk, "session_id": session_id["executionID"]}) + "\n"
+                  async for chunk in exchange_graph.streaming_serve(request.prompt, intent_id=intent.intent_id):
+                      yield json.dumps({
+                          "response": chunk,
+                          "session_id": session_id["executionID"],
+                          "intent_id": intent.intent_id,
+                      }) + "\n"
               except Exception as e:
                   logger.error(f"Error in stream: {e}")
                   yield json.dumps({"response": f"Error: {str(e)}"}) + "\n"

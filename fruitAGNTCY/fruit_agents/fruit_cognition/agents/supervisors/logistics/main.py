@@ -23,6 +23,7 @@ from common.cors import get_cors_allowed_origins
 from agents.supervisors.logistics.graph import shared
 from agents.logistics.shipper.card import AGENT_CARD
 from api.admin.router import create_admin_router
+from cognition.services.intent_manager import IntentManager
 from config.config import LLM_MODEL, HOT_RELOAD_MODE, OTEL_SDK_DISABLED
 from pathlib import Path
 from common.streaming_capability import require_streaming_capability
@@ -91,20 +92,28 @@ app.include_router(
 class PromptRequest(BaseModel):
   prompt: str
 
+intent_manager = IntentManager()
+
 @app.post("/agent/prompt")
 async def handle_prompt(request: PromptRequest, req: Request):
   logistic_graph = getattr(req.app.state, "logistic_graph", None)
   if logistic_graph is None:
     raise HTTPException(status_code=503, detail="Service initializing")
   try:
+    intent = intent_manager.create_from_prompt(request.prompt)
     with session_start() as session_id:
       timeout_val = int(os.getenv("LOGISTIC_TIMEOUT", "200"))
       result = await asyncio.wait_for(
-        logistic_graph.serve(request.prompt),
+        logistic_graph.serve(request.prompt, intent_id=intent.intent_id),
         timeout=timeout_val
       )
       logger.info(f"Final result from LangGraph: {result}")
-      return {"response": result, "session_id": session_id["executionID"]}
+      return {
+        "response": result,
+        "session_id": session_id["executionID"],
+        "intent_id": intent.intent_id,
+        "intent": intent.model_dump(),
+      }
   except asyncio.TimeoutError:
     logger.error("Request timed out after %s seconds", timeout_val)
     raise HTTPException(status_code=504, detail=f"Request timed out after {timeout_val} seconds")
@@ -179,12 +188,17 @@ async def handle_stream_prompt(request: PromptRequest, req: Request):
     if logistic_graph is None:
         raise HTTPException(status_code=503, detail="Service initializing")
     try:
+        intent = intent_manager.create_from_prompt(request.prompt)
         with session_start() as session_id:  # Start a new tracing session for observability
 
           async def stream_generator():
               try:
-                  async for chunk in logistic_graph.streaming_serve(request.prompt):
-                      yield json.dumps({"response": chunk, "session_id": session_id["executionID"]}) + "\n"
+                  async for chunk in logistic_graph.streaming_serve(request.prompt, intent_id=intent.intent_id):
+                      yield json.dumps({
+                          "response": chunk,
+                          "session_id": session_id["executionID"],
+                          "intent_id": intent.intent_id,
+                      }) + "\n"
               except Exception as e:
                   logger.error(f"Error in stream: {e}")
                   yield json.dumps({"response": f"Error: {str(e)}"}) + "\n"

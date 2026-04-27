@@ -129,6 +129,7 @@ class GraphState(MessagesState):
     """
     next_node: str
     full_response: str = ""
+    intent_id: str | None = None
 
 @agent(name="exchange_agent")
 class ExchangeGraph:
@@ -585,7 +586,7 @@ class ExchangeGraph:
             "messages": [AIMessage(content="I'm not sure how to handle that. Could you please clarify?")],
         }
 
-    async def serve(self, prompt: str) -> str:
+    async def serve(self, prompt: str, intent_id: str | None = None) -> str:
         """
         Processes the input prompt and returns a complete response from the graph execution.
         
@@ -620,6 +621,7 @@ class ExchangeGraph:
                     "content": prompt,
                 }
                 ],
+                "intent_id": intent_id,
             }, {"configurable": {"thread_id": uuid.uuid4()}})
 
             # Extract messages from the final state
@@ -645,7 +647,7 @@ class ExchangeGraph:
             logger.error(f"Error in serve method: {e}")
             raise Exception(str(e))
 
-    async def streaming_serve(self, prompt: str):
+    async def streaming_serve(self, prompt: str, intent_id: str | None = None):
         """
         Streams the graph execution using LangGraph's astream_events API, yielding chunks as they arrive.
         
@@ -684,6 +686,7 @@ class ExchangeGraph:
                         "content": prompt
                     }
                 ],
+                "intent_id": intent_id,
             }
 
             # Track seen content to prevent duplicate yields when nodes produce the same output
