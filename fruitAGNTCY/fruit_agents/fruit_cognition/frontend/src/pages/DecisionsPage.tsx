@@ -6,7 +6,7 @@
  */
 
 import axios from "axios"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Link as RouterLink } from "react-router-dom"
 import {
   Alert,
@@ -199,14 +199,21 @@ const ApprovalCard = ({
   )
 }
 
+const POLL_INTERVAL_MS = 3000
+
 const DecisionsPage = () => {
   const [items, setItems] = useState<ApprovalRequest[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+  // Refs let the polling tick read latest state without re-creating the timer.
+  const busyIdRef = useRef<string | null>(null)
+  const inFlightRef = useRef<boolean>(false)
 
   const reload = useCallback(async (signal?: AbortSignal) => {
+    if (inFlightRef.current) return
+    inFlightRef.current = true
     setLoading(true)
     setError(null)
     try {
@@ -216,13 +223,29 @@ const DecisionsPage = () => {
       setError(e instanceof Error ? e.message : "failed to load approvals")
     } finally {
       setLoading(false)
+      inFlightRef.current = false
     }
   }, [])
 
   useEffect(() => {
+    busyIdRef.current = busyId
+  }, [busyId])
+
+  useEffect(() => {
     const ctrl = new AbortController()
     void reload(ctrl.signal)
-    return () => ctrl.abort()
+
+    // Poll every POLL_INTERVAL_MS, skipping ticks when an action is mid-flight
+    // so a user-driven approve/reject doesn't race with the background fetch.
+    const id = window.setInterval(() => {
+      if (busyIdRef.current !== null) return
+      void reload()
+    }, POLL_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(id)
+      ctrl.abort()
+    }
   }, [reload])
 
   const handleAction = async (
@@ -261,7 +284,8 @@ const DecisionsPage = () => {
             title={`Reading from ${getCognitionApiUrl()}/cognition/approvals`}
           >
             <Typography variant="caption" color="text.secondary" sx={{ mr: 2 }}>
-              {getCognitionApiUrl().replace(/^https?:\/\//, "")}
+              {getCognitionApiUrl().replace(/^https?:\/\//, "")} · polling{" "}
+              {POLL_INTERVAL_MS / 1000}s
             </Typography>
           </Tooltip>
           <Button
