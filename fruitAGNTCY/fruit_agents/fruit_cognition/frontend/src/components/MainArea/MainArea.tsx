@@ -11,6 +11,7 @@ import TransportNode from "./Graph/Elements/transportNode"
 import CustomEdge from "./Graph/Elements/CustomEdge"
 import BranchingEdge from "./Graph/Elements/BranchingEdge"
 import CustomNode from "./Graph/Elements/CustomNode"
+import InfoDrawer from "./Graph/InfoDrawer"
 import ModalContainer from "./ModalContainer"
 import OasfRecordModal from "./Graph/Directory/OasfRecordModal"
 import { useMainArea, type MainAreaProps } from "./useMainArea"
@@ -47,6 +48,9 @@ const MainArea: React.FC<MainAreaProps> = (props) => {
     setOasfModalOpen,
     oasfModalData,
     oasfModalPosition,
+    infoDrawerOpen,
+    infoDrawerData,
+    handleCloseInfoDrawer,
     onPaneClick,
     onNodeDrag,
   } = useMainArea(props)
@@ -93,6 +97,12 @@ const MainArea: React.FC<MainAreaProps> = (props) => {
         nodeName={oasfModalData?.label1 || ""}
         nodeData={oasfModalData}
         position={oasfModalPosition}
+      />
+
+      <InfoDrawer
+        open={infoDrawerOpen}
+        onClose={handleCloseInfoDrawer}
+        data={infoDrawerData}
       />
     </div>
   )

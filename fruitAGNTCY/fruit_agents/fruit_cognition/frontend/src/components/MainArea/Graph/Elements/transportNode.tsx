@@ -5,10 +5,6 @@
 
 import React from "react"
 import { Handle, Position } from "@xyflow/react"
-import { useThemeIcon } from "@/hooks/useThemeIcon"
-import { SecurityClass } from "@/utils/SecurityClass"
-import githubIcon from "@/assets/Github.png"
-import githubIconLight from "@/assets/Github_lightmode.png"
 import { TransportNodeData } from "./types"
 
 interface TransportNodeProps {
@@ -16,11 +12,6 @@ interface TransportNodeProps {
 }
 
 const TransportNode: React.FC<TransportNodeProps> = ({ data }) => {
-  const githubIconSrc = useThemeIcon({
-    light: githubIconLight,
-    dark: githubIcon,
-  })
-
   const activeClasses = data.active
     ? "bg-node-background-active outline outline-2 outline-accent-border shadow-[var(--shadow-default)_0px_6px_8px]"
     : "bg-node-background"
@@ -30,44 +21,31 @@ const TransportNode: React.FC<TransportNodeProps> = ({ data }) => {
     ? "h-[120px] w-[120px] flex-col rounded-full"
     : "h-[52px] w-[1200px] rounded-lg"
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (typeof data.onOpenInfoDrawer === "function") {
+      data.onOpenInfoDrawer(data)
+    }
+  }
+
   return (
     <div
-      className={` ${activeClasses} relative flex ${shapeClasses} items-center justify-center p-4 text-center text-gray-50 hover:bg-node-background-hover hover:shadow-[var(--shadow-default)_0px_6px_8px] hover:outline hover:outline-2 hover:outline-accent-border`}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          handleClick(e as unknown as React.MouseEvent)
+        }
+      }}
+      className={` ${activeClasses} relative flex ${shapeClasses} cursor-pointer items-center justify-center p-4 text-center text-gray-50 hover:bg-node-background-hover hover:shadow-[var(--shadow-default)_0px_6px_8px] hover:outline hover:outline-2 hover:outline-accent-border`}
     >
       <div
-        className={`flex h-auto w-auto items-center justify-center whitespace-nowrap text-center font-inter font-normal tracking-normal text-node-text-primary opacity-100 ${isCircular ? (data.githubLink ? "text-xs leading-4" : "mb-2 text-xs leading-4") : "h-5 w-[94px] text-sm leading-5"}`}
+        className={`flex h-auto w-auto items-center justify-center whitespace-nowrap text-center font-inter font-normal tracking-normal text-node-text-primary opacity-100 ${isCircular ? "text-xs leading-4" : "h-5 w-[94px] text-sm leading-5"}`}
       >
         {data.label}
       </div>
-
-      {data.githubLink && SecurityClass.isSafeExternalUrl(data.githubLink) && (
-        <a
-          href={data.githubLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="no-underline"
-        >
-          <div
-            className={`flex cursor-pointer items-center justify-center rounded-lg border border-solid p-1 opacity-100 shadow-sm transition-opacity duration-200 ease-in-out ${isCircular ? "mt-1 h-6 w-6" : "absolute -right-4 top-1/2 z-10 h-7 w-7 -translate-y-1/2"}`}
-            style={{
-              backgroundColor: "var(--custom-node-background)",
-              borderColor: "var(--custom-node-border)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "0.8"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "1"
-            }}
-          >
-            <img
-              src={githubIconSrc}
-              alt="GitHub"
-              className={isCircular ? "h-4 w-4" : "h-5 w-5"}
-            />
-          </div>
-        </a>
-      )}
 
       {isCircular ? (
         <>

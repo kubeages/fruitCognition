@@ -11,7 +11,7 @@ import {
   supportsTransportUpdates,
 } from "@/utils/patternUtils"
 import type { GraphConfig } from "@/utils/graphConfigs"
-import type { CustomNodeData } from "./Graph/Elements/types"
+import type { CustomNodeData, TransportNodeData } from "./Graph/Elements/types"
 
 export interface UseMainAreaGraphEffectsParams {
   pattern: string
@@ -29,6 +29,7 @@ export interface UseMainAreaGraphEffectsParams {
     nodeData: CustomNodeData,
     position: { x: number; y: number },
   ) => void
+  handleOpenInfoDrawer: (nodeData: CustomNodeData | TransportNodeData) => void
   activeModal: string | null
   activeNodeData: unknown
   fitViewWithViewport: (opts: {
@@ -53,6 +54,7 @@ export function useMainAreaGraphEffects({
   setEdges,
   handleOpenIdentityModal,
   handleOpenOasfModal,
+  handleOpenInfoDrawer,
   activeModal,
   activeNodeData,
   fitViewWithViewport,
@@ -93,6 +95,7 @@ export function useMainAreaGraphEffects({
           ...node.data,
           onOpenIdentityModal: handleOpenIdentityModal,
           onOpenOasfModal: handleOpenOasfModal,
+          onOpenInfoDrawer: handleOpenInfoDrawer,
           isModalOpen: !!(
             activeModal &&
             (activeNodeData as { id?: string } | null)?.id === node.id

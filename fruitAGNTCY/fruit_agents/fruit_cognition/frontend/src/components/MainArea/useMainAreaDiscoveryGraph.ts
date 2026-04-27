@@ -83,6 +83,7 @@ export interface UseMainAreaDiscoveryGraphParams {
     nodeData: CustomNodeData,
     position: { x: number; y: number },
   ) => void
+  handleOpenInfoDrawer: (nodeData: CustomNodeData) => void
 }
 
 /** Syncs discovery response events to the graph: adds/removes discovery nodes and edges. */
@@ -93,6 +94,7 @@ export function useMainAreaDiscoveryGraph({
   setEdges,
   handleOpenIdentityModal,
   handleOpenOasfModal,
+  handleOpenInfoDrawer,
 }: UseMainAreaDiscoveryGraphParams) {
   const seqRef = useRef(0)
   const lastTsRef = useRef<number | null>(null)
@@ -215,6 +217,7 @@ export function useMainAreaDiscoveryGraph({
               isModalOpen: false,
               onOpenIdentityModal: handleOpenIdentityModal,
               onOpenOasfModal: handleOpenOasfModal,
+              onOpenInfoDrawer: handleOpenInfoDrawer,
             },
           })
           newEdges.push({
@@ -249,6 +252,7 @@ export function useMainAreaDiscoveryGraph({
               oasfRecord: entry.record,
               onOpenIdentityModal: handleOpenIdentityModal,
               onOpenOasfModal: handleOpenOasfModal,
+              onOpenInfoDrawer: handleOpenInfoDrawer,
             },
           })
           newEdges.push({

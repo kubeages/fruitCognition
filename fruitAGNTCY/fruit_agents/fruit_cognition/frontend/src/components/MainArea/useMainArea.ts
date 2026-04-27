@@ -11,7 +11,8 @@ import { useViewportAwareFitView } from "@/hooks/useViewportAwareFitView"
 import { useModalManager } from "@/hooks/useModalManager"
 import { NODE_IDS } from "@/utils/const.ts"
 import type { DiscoveryResponseEvent } from "@/types/agent"
-import type { CustomNodeData } from "./Graph/Elements/types"
+import type { CustomNodeData, TransportNodeData } from "./Graph/Elements/types"
+import type { InfoDrawerData } from "./Graph/InfoDrawer"
 import { useMainAreaDiscoveryGraph } from "./useMainAreaDiscoveryGraph"
 import { useMainAreaGraphEffects } from "./useMainAreaGraphEffects"
 
@@ -86,6 +87,47 @@ export function useMainArea({
     [],
   )
 
+  const [infoDrawerOpen, setInfoDrawerOpen] = useState(false)
+  const [infoDrawerData, setInfoDrawerData] = useState<InfoDrawerData | null>(
+    null,
+  )
+
+  const handleOpenInfoDrawer = useCallback(
+    (nodeData: CustomNodeData | TransportNodeData) => {
+      // Distinguish CustomNodeData from TransportNodeData by presence of label1.
+      const isCustom = "label1" in nodeData
+      if (isCustom) {
+        const c = nodeData as CustomNodeData
+        setInfoDrawerData({
+          kind: "node",
+          label1: c.label1,
+          label2: c.label2,
+          description: c.description,
+          icon: c.icon,
+          githubLink: c.githubLink,
+          agentDirectoryLink: c.agentDirectoryLink,
+          slug: c.slug,
+          farmName: c.farmName,
+          agentCid: c.agentCid,
+          verificationStatus: c.verificationStatus,
+        })
+      } else {
+        const t = nodeData as TransportNodeData
+        setInfoDrawerData({
+          kind: "transport",
+          label1: t.label,
+          label2: "Transport",
+          description: t.description,
+          githubLink: t.githubLink,
+        })
+      }
+      setInfoDrawerOpen(true)
+    },
+    [],
+  )
+
+  const handleCloseInfoDrawer = useCallback(() => setInfoDrawerOpen(false), [])
+
   useMainAreaDiscoveryGraph({
     pattern,
     discoveryResponseEvent,
@@ -93,6 +135,7 @@ export function useMainArea({
     setEdges,
     handleOpenIdentityModal,
     handleOpenOasfModal,
+    handleOpenInfoDrawer,
   })
 
   const nodeAgentCidKey = useMemo(
@@ -127,6 +170,7 @@ export function useMainArea({
     setEdges,
     handleOpenIdentityModal,
     handleOpenOasfModal,
+    handleOpenInfoDrawer,
     activeModal,
     activeNodeData,
     fitViewWithViewport,
@@ -231,6 +275,9 @@ export function useMainArea({
     setOasfModalOpen,
     oasfModalData,
     oasfModalPosition,
+    infoDrawerOpen,
+    infoDrawerData,
+    handleCloseInfoDrawer,
     onPaneClick,
     onNodeDrag,
   }
