@@ -12,9 +12,14 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 from pydantic import BaseModel, Field
 
+from cognition.schemas.belief import Belief
 from cognition.schemas.claim import Claim
 from cognition.schemas.intent_contract import IntentContract
+from cognition.services.belief_builder import BeliefBuilder
 from cognition.services.cognition_fabric import get_fabric
+
+
+_belief_builder = BeliefBuilder()
 
 
 class IntentSummary(BaseModel):
@@ -32,6 +37,7 @@ class IntentListResponse(BaseModel):
 class IntentStateResponse(BaseModel):
     intent: IntentContract
     claims: list[Claim] = Field(default_factory=list)
+    beliefs: list[Belief] = Field(default_factory=list)
 
 
 def _summary(intent: IntentContract) -> IntentSummary:
@@ -68,6 +74,14 @@ def create_cognition_router() -> APIRouter:
         # Don't 404 on no claims — empty list is the right semantic.
         return get_fabric().list_claims(intent_id)
 
+    @router.get("/intent/{intent_id}/beliefs", response_model=list[Belief])
+    async def list_beliefs(
+        intent_id: Annotated[str, Path(min_length=1)],
+    ) -> list[Belief]:
+        # Built on the fly from the current claims — beliefs are not persisted yet.
+        claims = get_fabric().list_claims(intent_id)
+        return _belief_builder.build(intent_id=intent_id, claims=claims)
+
     @router.get("/intent/{intent_id}/state", response_model=IntentStateResponse)
     async def get_state(
         intent_id: Annotated[str, Path(min_length=1)],
@@ -76,6 +90,8 @@ def create_cognition_router() -> APIRouter:
         intent = fabric.get_intent(intent_id)
         if intent is None:
             raise HTTPException(status_code=404, detail=f"intent {intent_id!r} not found")
-        return IntentStateResponse(intent=intent, claims=fabric.list_claims(intent_id))
+        claims = fabric.list_claims(intent_id)
+        beliefs = _belief_builder.build(intent_id=intent_id, claims=claims)
+        return IntentStateResponse(intent=intent, claims=claims, beliefs=beliefs)
 
     return router

@@ -128,3 +128,38 @@ def test_get_state_combines_intent_and_claims(client: TestClient):
 def test_get_state_404_for_unknown_intent(client: TestClient):
     r = client.get("/cognition/intent/nope/state")
     assert r.status_code == 404
+
+
+def test_list_beliefs_empty_when_no_claims(client: TestClient):
+    intent = _seed_intent()
+    r = client.get(f"/cognition/intent/{intent.intent_id}/beliefs")
+    assert r.status_code == 200
+    assert r.json() == []
+
+
+def test_list_beliefs_rolls_up_supply_options(client: TestClient):
+    intent = _seed_intent()
+    _seed_claim(intent.intent_id, "inventory", available_lb=320, origin="colombia")
+    _seed_claim(intent.intent_id, "price", unit_price_usd=2.1)
+    _seed_claim(intent.intent_id, "quality", quality_score=0.92)
+
+    r = client.get(f"/cognition/intent/{intent.intent_id}/beliefs")
+    assert r.status_code == 200
+    body = r.json()
+    assert len(body) == 1
+    b = body[0]
+    assert b["belief_type"] == "supply_option"
+    assert b["agent_id"] == "colombia-mango-farm"
+    assert b["value"]["available_lb"] == 320
+    assert b["value"]["unit_price_usd"] == 2.1
+    assert b["value"]["quality_score"] == 0.92
+
+
+def test_state_includes_beliefs(client: TestClient):
+    intent = _seed_intent()
+    _seed_claim(intent.intent_id, "inventory", available_lb=320, origin="colombia")
+    _seed_claim(intent.intent_id, "price", unit_price_usd=2.1)
+    r = client.get(f"/cognition/intent/{intent.intent_id}/state")
+    body = r.json()
+    assert len(body["beliefs"]) == 1
+    assert body["beliefs"][0]["belief_type"] == "supply_option"
