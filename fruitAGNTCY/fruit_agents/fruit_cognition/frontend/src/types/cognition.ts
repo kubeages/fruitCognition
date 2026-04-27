@@ -95,12 +95,63 @@ export interface EvaluatedOption {
   rationale: string | null
 }
 
+export interface PlanSupplier {
+  supplier: string
+  quantity_lb: number
+  unit_price_usd: number | null
+  origin: string | null
+}
+
+export type PlanType = "single_supplier" | "split_order"
+
+export interface Plan {
+  plan_id: string
+  intent_id: string
+  plan_type: PlanType
+  suppliers: PlanSupplier[]
+  total_quantity_lb: number
+  total_price_usd: number | null
+  feasible: boolean
+  created_at: string
+}
+
+export type DecisionMode = "heuristic" | "llm"
+
+export interface Decision {
+  decision_id: string
+  intent_id: string
+  decision_type: string
+  selected_plan: Plan | null
+  rationale: string
+  confidence: number
+  requires_human_approval: boolean
+  mode: DecisionMode
+  approval_violations: string[]
+  created_at: string
+}
+
+export interface ApprovalRequest {
+  intent: IntentContract
+  decision: Decision
+}
+
+export type ApprovalAction = "approve" | "reject" | "request_alternative"
+
+export interface ApprovalResult {
+  intent_id: string
+  action: ApprovalAction
+  new_status: string
+  note: string | null
+}
+
 export interface IntentStateResponse {
   intent: IntentContract
   claims: Claim[]
   beliefs: Belief[]
   conflicts: Conflict[]
   options: EvaluatedOption[]
+  plans: Plan[]
+  decision: Decision | null
 }
 
 export interface IntentListResponse {

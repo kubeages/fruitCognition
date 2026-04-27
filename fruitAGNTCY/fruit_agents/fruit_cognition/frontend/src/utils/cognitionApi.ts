@@ -6,7 +6,12 @@
 
 import axios from "axios"
 import { env } from "@/utils/env"
-import type { IntentListResponse, IntentStateResponse } from "@/types/cognition"
+import type {
+  ApprovalRequest,
+  ApprovalResult,
+  IntentListResponse,
+  IntentStateResponse,
+} from "@/types/cognition"
 
 const DEFAULT_COGNITION_API_URL = "http://127.0.0.1:8000"
 
@@ -35,3 +40,32 @@ export const fetchIntentState = async (
   )
   return data
 }
+
+export const fetchApprovals = async (
+  signal?: AbortSignal,
+): Promise<ApprovalRequest[]> => {
+  const { data } = await axios.get<ApprovalRequest[]>(
+    `${getCognitionApiUrl()}/cognition/approvals`,
+    { signal },
+  )
+  return data
+}
+
+const _action = async (
+  intentId: string,
+  endpoint: "approve" | "reject" | "request-alternative",
+  note?: string,
+): Promise<ApprovalResult> => {
+  const { data } = await axios.post<ApprovalResult>(
+    `${getCognitionApiUrl()}/cognition/intent/${encodeURIComponent(intentId)}/${endpoint}`,
+    note ? { note } : {},
+  )
+  return data
+}
+
+export const approveIntent = (intentId: string, note?: string) =>
+  _action(intentId, "approve", note)
+export const rejectIntent = (intentId: string, note?: string) =>
+  _action(intentId, "reject", note)
+export const requestAlternativeIntent = (intentId: string, note?: string) =>
+  _action(intentId, "request-alternative", note)
