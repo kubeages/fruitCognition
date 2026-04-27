@@ -23,6 +23,7 @@ from common.cors import get_cors_allowed_origins
 from agents.supervisors.logistics.graph import shared
 from agents.logistics.shipper.card import AGENT_CARD
 from api.admin.router import create_admin_router
+from cognition.services.cognition_fabric import get_fabric
 from cognition.services.intent_manager import IntentManager
 from config.config import LLM_MODEL, HOT_RELOAD_MODE, OTEL_SDK_DISABLED
 from pathlib import Path
@@ -101,6 +102,7 @@ async def handle_prompt(request: PromptRequest, req: Request):
     raise HTTPException(status_code=503, detail="Service initializing")
   try:
     intent = intent_manager.create_from_prompt(request.prompt)
+    get_fabric().save_intent(intent)
     with session_start() as session_id:
       timeout_val = int(os.getenv("LOGISTIC_TIMEOUT", "200"))
       result = await asyncio.wait_for(
@@ -189,6 +191,7 @@ async def handle_stream_prompt(request: PromptRequest, req: Request):
         raise HTTPException(status_code=503, detail="Service initializing")
     try:
         intent = intent_manager.create_from_prompt(request.prompt)
+        get_fabric().save_intent(intent)
         with session_start() as session_id:  # Start a new tracing session for observability
 
           async def stream_generator():

@@ -32,6 +32,7 @@ from common.cors import get_cors_allowed_origins
 from agents.supervisors.auction.graph import shared
 from agents.supervisors.auction.api import create_apps_router
 from api.admin.router import create_admin_router
+from cognition.services.cognition_fabric import get_fabric
 from cognition.services.intent_manager import IntentManager
 from config.config import DEFAULT_MESSAGE_TRANSPORT, LLM_MODEL, HOT_RELOAD_MODE, OTEL_SDK_DISABLED
 from pathlib import Path
@@ -162,6 +163,7 @@ async def handle_prompt(request: PromptRequest, req: Request):
     raise HTTPException(status_code=503, detail="Service initializing")
   try:
     intent = intent_manager.create_from_prompt(request.prompt)
+    get_fabric().save_intent(intent)
     with session_start() as session_id:
       # Execute the graph synchronously - blocks until completion
       result = await exchange_graph.serve(request.prompt, intent_id=intent.intent_id)
@@ -201,6 +203,7 @@ async def handle_stream_prompt(request: PromptRequest, req: Request):
         raise HTTPException(status_code=503, detail="Service initializing")
     try:
         intent = intent_manager.create_from_prompt(request.prompt)
+        get_fabric().save_intent(intent)
         with session_start() as session_id:  # Start a new tracing session for observability
 
           async def stream_generator():
