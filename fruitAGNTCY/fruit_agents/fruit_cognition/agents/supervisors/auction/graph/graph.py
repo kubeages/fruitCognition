@@ -25,6 +25,12 @@ from agents.supervisors.auction.graph.tools import (
     tools_or_next
 )
 from agents.supervisors.auction.graph.shared import farm_registry
+from cognition.services.agent_response_extractor import (
+    extract_farm_text,
+    extraction_enabled,
+)
+from cognition.services.claim_mapper import ClaimMapper
+from cognition.services.cognition_fabric import get_fabric
 from common.llm import get_llm
 
 logger = logging.getLogger("fruit_cognition.supervisor.graph")
@@ -33,6 +39,32 @@ _SUPERVISOR_OUTCOME_KEY = "supervisor_outcome"
 _OUTCOME_TRANSPORT = "transport"
 _OUTCOME_PERMISSION = "permission"
 _SUPERVISOR_FARM_KEY = "supervisor_farm"
+
+_claim_mapper = ClaimMapper()
+
+
+def _record_farm_claims(intent_id: str | None, agent_id: str, raw_text: str, *, default_origin: str | None = None) -> None:
+    """Best-effort: extract claim fields from a farm reply and persist them.
+
+    Silent on missing intent_id or extraction-disabled, logs at debug on failures.
+    """
+    if not intent_id or not extraction_enabled():
+        return
+    try:
+        fields = extract_farm_text(str(raw_text), default_origin=default_origin)
+        if not fields:
+            return
+        claims = _claim_mapper.map_farm_response(
+            intent_id=intent_id,
+            agent_id=agent_id,
+            response=fields,
+        )
+        fabric = get_fabric()
+        for c in claims:
+            fabric.save_claim(c)
+        logger.debug("recorded %d claims for intent=%s agent=%s", len(claims), intent_id, agent_id)
+    except Exception:
+        logger.exception("claim recording failed for agent=%s", agent_id)
 _SUPERVISOR_OPERATION_KEY = "supervisor_operation"
 
 
@@ -345,11 +377,19 @@ class ExchangeGraph:
         try:
             # Call the function directly
             tool_result = await get_farm_yield_inventory(user_msg.content, farm)
-            
+
             # Check for errors in the result
             if "error" in str(tool_result).lower() or "failed" in str(tool_result).lower():
                 error_message = f"I encountered an issue retrieving information from the {farm.title()} farm. Please try again later."
                 return {"messages": [AIMessage(content=error_message)]}
+
+            # Record cognition claims (best-effort heuristic extraction).
+            _record_farm_claims(
+                state.get("intent_id"),
+                agent_id=f"{farm}-farm",
+                raw_text=tool_result,
+                default_origin=farm,
+            )
 
             # Use LLM to format the response
             prompt = PromptTemplate(
@@ -428,6 +468,29 @@ class ExchangeGraph:
                 yield {"messages": [AIMessage(content=error_message)]}
                 return
             
+            # Per-farm claim recording: split the aggregated text on farm slug
+            # markers and emit claims for whichever farms surfaced data.
+            for slug in farm_registry.slugs():
+                # Aggregated chunks include the farm name; isolate that farm's segment.
+                marker = slug.lower()
+                if marker not in full_response.lower():
+                    continue
+                start = full_response.lower().find(marker)
+                # Bound at next farm marker if any, else end of string.
+                next_starts = [
+                    full_response.lower().find(s.lower(), start + len(marker))
+                    for s in farm_registry.slugs() if s != slug
+                ]
+                next_starts = [n for n in next_starts if n > 0]
+                end = min(next_starts) if next_starts else len(full_response)
+                segment = full_response[start:end]
+                _record_farm_claims(
+                    state.get("intent_id"),
+                    agent_id=f"{slug}-farm",
+                    raw_text=segment,
+                    default_origin=slug,
+                )
+
             # Yield final aggregated response with complete inventory
             # This is what gets returned in non-streaming mode (ainvoke)
             # In streaming mode, this provides the final summary with all data
