@@ -19,6 +19,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from api.admin.models_catalog import ModelInfo, Provider as CatalogProvider, list_models
+from cognition.engines.decision_engine import (
+    get_active_mode as _decision_get_mode,
+    set_active_mode as _decision_set_mode,
+)
+from cognition.schemas.decision import DecisionMode
 from cognition.services.cognition_fabric import (
     InMemoryCognitionFabric,
     get_active_dsn,
@@ -117,6 +122,17 @@ _DSN_PASSWORD_RE = re.compile(r"^(?P<scheme>[^:]+://[^:/?#]+):(?P<password>[^@]+
 def _redact_dsn(dsn: str) -> str:
     """Mask the password segment of a postgresql:// DSN."""
     return _DSN_PASSWORD_RE.sub(r"\g<scheme>:***@", dsn)
+
+
+class DecisionModePayload(BaseModel):
+    mode: DecisionMode
+
+
+class DecisionModeResponse(BaseModel):
+    ok: bool
+    mode: DecisionMode
+    source: Literal["override", "env"]
+    message: Optional[str] = None
 
 
 def _build_litellm_kwargs(req: LLMTestRequest) -> dict:
@@ -381,5 +397,26 @@ def create_admin_router(
         """Drop the admin override; fall back to env DSN or in-memory."""
         await asyncio.to_thread(set_active_dsn, None)
         return _current_pg_state()
+
+    # ----- decision engine mode -----
+
+    def _decision_state() -> DecisionModeResponse:
+        from cognition.engines.decision_engine import _override_mode  # noqa
+        source: Literal["override", "env"] = "override" if _override_mode is not None else "env"
+        return DecisionModeResponse(ok=True, mode=_decision_get_mode(), source=source)
+
+    @router.get("/cognition/decision/active", response_model=DecisionModeResponse)
+    async def get_active_decision_mode() -> DecisionModeResponse:
+        return _decision_state()
+
+    @router.post("/cognition/decision/active", response_model=DecisionModeResponse)
+    async def set_active_decision_mode(req: DecisionModePayload) -> DecisionModeResponse:
+        _decision_set_mode(req.mode)
+        return _decision_state()
+
+    @router.delete("/cognition/decision/active", response_model=DecisionModeResponse)
+    async def clear_active_decision_mode() -> DecisionModeResponse:
+        _decision_set_mode(None)
+        return _decision_state()
 
     return router

@@ -12,12 +12,18 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 from pydantic import BaseModel, Field
 
+from cognition.schemas.approval import ApprovalRequest, ApprovalResult
 from cognition.schemas.belief import Belief
 from cognition.schemas.claim import Claim
 from cognition.schemas.conflict import Conflict
 from cognition.schemas.decision import Decision
 from cognition.schemas.intent_contract import IntentContract
 from cognition.schemas.plan import Plan
+from cognition.services import approval_service
+from cognition.services.approval_service import (
+    ApprovalNotFound,
+    ApprovalNotPending,
+)
 from cognition.services.belief_builder import BeliefBuilder
 from cognition.services.cognition_fabric import get_fabric
 from cognition.services.engine_pipeline import (
@@ -27,6 +33,10 @@ from cognition.services.engine_pipeline import (
 
 
 _belief_builder = BeliefBuilder()
+
+
+class ApprovalActionPayload(BaseModel):
+    note: str | None = None
 
 
 class IntentSummary(BaseModel):
@@ -130,6 +140,56 @@ def create_cognition_router() -> APIRouter:
         if evaluation.decision is None:  # pragma: no cover — pipeline always returns one
             raise HTTPException(status_code=500, detail="decision not available")
         return evaluation.decision
+
+    # ----- approval flow (iter 15) -----
+
+    @router.get("/approvals", response_model=list[ApprovalRequest])
+    async def list_approvals() -> list[ApprovalRequest]:
+        return approval_service.list_pending()
+
+    @router.get("/approval/{intent_id}", response_model=ApprovalRequest)
+    async def get_approval(
+        intent_id: Annotated[str, Path(min_length=1)],
+    ) -> ApprovalRequest:
+        try:
+            return approval_service.get_approval(intent_id)
+        except ApprovalNotFound:
+            raise HTTPException(status_code=404, detail=f"intent {intent_id!r} not found")
+        except ApprovalNotPending:
+            raise HTTPException(status_code=409, detail="no decision pending for this intent")
+
+    def _to_response(call) -> ApprovalResult:
+        try:
+            return call()
+        except ApprovalNotFound as e:
+            raise HTTPException(status_code=404, detail=f"intent {str(e)!r} not found")
+        except ApprovalNotPending:
+            raise HTTPException(status_code=409, detail="intent is in a terminal state")
+
+    @router.post("/intent/{intent_id}/approve", response_model=ApprovalResult)
+    async def approve_intent(
+        intent_id: Annotated[str, Path(min_length=1)],
+        payload: ApprovalActionPayload = ApprovalActionPayload(),
+    ) -> ApprovalResult:
+        return _to_response(lambda: approval_service.approve(intent_id, payload.note))
+
+    @router.post("/intent/{intent_id}/reject", response_model=ApprovalResult)
+    async def reject_intent(
+        intent_id: Annotated[str, Path(min_length=1)],
+        payload: ApprovalActionPayload = ApprovalActionPayload(),
+    ) -> ApprovalResult:
+        return _to_response(lambda: approval_service.reject(intent_id, payload.note))
+
+    @router.post(
+        "/intent/{intent_id}/request-alternative", response_model=ApprovalResult,
+    )
+    async def request_alternative_intent(
+        intent_id: Annotated[str, Path(min_length=1)],
+        payload: ApprovalActionPayload = ApprovalActionPayload(),
+    ) -> ApprovalResult:
+        return _to_response(
+            lambda: approval_service.request_alternative(intent_id, payload.note)
+        )
 
     @router.get("/intent/{intent_id}/state", response_model=IntentStateResponse)
     async def get_state(
