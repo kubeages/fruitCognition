@@ -5,13 +5,14 @@
 
 import React from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
-import { RootPage, AdminPage } from "@/pages"
+import { RootPage, AdminPage, CognitionPage } from "@/pages"
 
 const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<RootPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/cognition" element={<CognitionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
