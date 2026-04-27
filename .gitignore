@@ -205,3 +205,7 @@ node_modules/
 # Other files to ignore
 claude_resume.sh
 .claude/
+scripts/
+# Generated illustrations + marketing assets (run scripts/generate_assets.py to recreate)
+fruitAGNTCY/fruit_agents/fruit_cognition/frontend/src/assets/illustrations/
+marketing/
