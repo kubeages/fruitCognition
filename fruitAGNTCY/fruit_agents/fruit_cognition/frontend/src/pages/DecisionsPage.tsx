@@ -38,6 +38,7 @@ import {
   requestAlternativeIntent,
 } from "@/utils/cognitionApi"
 import { fruitIcon } from "@/utils/fruitIcons"
+import { fruitImage, stateImage } from "@/utils/illustrations"
 import type { ApprovalRequest, Plan } from "@/types/cognition"
 
 type ActionFn = (intentId: string, note?: string) => Promise<unknown>
@@ -102,17 +103,39 @@ const ApprovalCard = ({
     ["Delivery", intent.delivery_days ?? "—"],
   ]
   const { Icon: FruitIconCmp, color: fruitColor } = fruitIcon(intent.fruit_type)
+  const fruitImg = fruitImage(intent.fruit_type)
 
   return (
     <Paper
       variant="outlined"
       sx={{ p: 2, borderLeft: `4px solid ${fruitColor}` }}
     >
-      <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
-        <FruitIconCmp size={26} color={fruitColor} strokeWidth={1.75} />
+      <Stack direction="row" alignItems="center" spacing={1.5} mb={1.5}>
+        {fruitImg ? (
+          <Box
+            component="img"
+            src={fruitImg}
+            alt={intent.fruit_type ?? ""}
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: 1,
+              objectFit: "cover",
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <FruitIconCmp size={26} color={fruitColor} strokeWidth={1.75} />
+        )}
         <Typography
           variant="subtitle1"
-          sx={{ fontFamily: "monospace", flexGrow: 1 }}
+          sx={{
+            fontFamily: "monospace",
+            flexGrow: 1,
+            minWidth: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
         >
           {intent.intent_id}
         </Typography>
@@ -327,12 +350,29 @@ const DecisionsPage = () => {
         {loading && items.length === 0 ? (
           <CircularProgress />
         ) : items.length === 0 ? (
-          <Box sx={{ textAlign: "center", py: 6 }}>
+          <Box sx={{ textAlign: "center", py: 4 }}>
             {(() => {
+              const url = stateImage("no_decisions")
+              if (url) {
+                return (
+                  <Box
+                    component="img"
+                    src={url}
+                    alt=""
+                    sx={{
+                      width: "100%",
+                      maxWidth: 280,
+                      height: "auto",
+                      borderRadius: 1,
+                      mb: 2,
+                    }}
+                  />
+                )
+              }
               const { Icon, color } = fruitIcon(null)
               return <Icon size={56} color={color} strokeWidth={1.5} />
             })()}
-            <Typography variant="body1" sx={{ mt: 2, fontWeight: 600 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
               Nothing to approve right now.
             </Typography>
             <Typography

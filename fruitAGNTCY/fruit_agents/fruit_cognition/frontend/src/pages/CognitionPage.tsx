@@ -40,6 +40,7 @@ import {
   getCognitionApiUrl,
 } from "@/utils/cognitionApi"
 import { fruitIcon } from "@/utils/fruitIcons"
+import { fruitImage, originImage, stateImage } from "@/utils/illustrations"
 import type {
   Belief,
   Claim,
@@ -354,19 +355,68 @@ const IntentDetail = ({ data }: { data: IntentStateResponse }) => {
   return (
     <Stack spacing={3}>
       <Paper variant="outlined" sx={{ p: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
+        <Stack direction="row" alignItems="flex-start" spacing={2} mb={1}>
           {(() => {
+            const url = fruitImage(intent.fruit_type)
+            if (url) {
+              return (
+                <Box
+                  component="img"
+                  src={url}
+                  alt={intent.fruit_type ?? ""}
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: 1,
+                    objectFit: "cover",
+                    flexShrink: 0,
+                  }}
+                />
+              )
+            }
             const { Icon, color } = fruitIcon(intent.fruit_type)
             return <Icon size={28} color={color} strokeWidth={1.75} />
           })()}
-          <Typography variant="h6" sx={{ fontFamily: "monospace", flex: 1 }}>
-            {intent.intent_id}
-          </Typography>
-          <Chip
-            label={intent.status}
-            size="small"
-            color={statusColor(intent.status)}
-          />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: "monospace",
+                  flex: 1,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {intent.intent_id}
+              </Typography>
+              <Chip
+                label={intent.status}
+                size="small"
+                color={statusColor(intent.status)}
+              />
+            </Stack>
+            {(() => {
+              const originUrl = originImage(
+                (intent.target_origin as string | null) ?? null,
+              )
+              return originUrl ? (
+                <Box
+                  component="img"
+                  src={originUrl}
+                  alt=""
+                  sx={{
+                    width: "100%",
+                    maxHeight: 110,
+                    objectFit: "cover",
+                    borderRadius: 1,
+                    mt: 1,
+                    opacity: 0.9,
+                  }}
+                />
+              ) : null
+            })()}
+          </Box>
         </Stack>
         <Stack
           direction="row"
@@ -543,15 +593,32 @@ const CognitionPage = () => {
             </Box>
             <Divider />
             {intents.length === 0 && !loadingList ? (
-              <Box sx={{ p: 4, textAlign: "center" }}>
+              <Box sx={{ p: 3, textAlign: "center" }}>
                 {(() => {
+                  const url = stateImage("no_intents")
+                  if (url) {
+                    return (
+                      <Box
+                        component="img"
+                        src={url}
+                        alt=""
+                        sx={{
+                          width: "100%",
+                          maxWidth: 200,
+                          height: "auto",
+                          borderRadius: 1,
+                          mb: 1.5,
+                        }}
+                      />
+                    )
+                  }
                   const { Icon, color } = fruitIcon(null)
                   return <Icon size={48} color={color} strokeWidth={1.5} />
                 })()}
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ mt: 1.5 }}
+                  sx={{ mt: 1 }}
                 >
                   No fruit orders yet.
                 </Typography>
