@@ -42,8 +42,12 @@ import {
 import type {
   Belief,
   Claim,
+  Conflict,
+  ConflictSeverity,
+  EvaluatedOption,
   IntentStateResponse,
   IntentSummary,
+  WeatherRiskLevel,
 } from "@/types/cognition"
 
 const statusColor = (
@@ -167,6 +171,176 @@ const BeliefsTable = ({ beliefs }: { beliefs: Belief[] }) => {
   )
 }
 
+const severityColor = (
+  s: ConflictSeverity,
+): "default" | "info" | "warning" | "error" => {
+  switch (s) {
+    case "low":
+      return "default"
+    case "medium":
+      return "info"
+    case "high":
+      return "warning"
+    case "critical":
+      return "error"
+  }
+}
+
+const weatherColor = (
+  l: WeatherRiskLevel,
+): "default" | "success" | "warning" | "error" => {
+  switch (l) {
+    case "low":
+      return "success"
+    case "medium":
+      return "warning"
+    case "high":
+      return "error"
+    default:
+      return "default"
+  }
+}
+
+const ConflictsTable = ({ conflicts }: { conflicts: Conflict[] }) => {
+  if (conflicts.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        No conflicts detected.
+      </Typography>
+    )
+  }
+  return (
+    <TableContainer component={Paper} variant="outlined">
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Severity</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Suggested resolution</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {conflicts.map((c) => (
+            <TableRow key={c.conflict_id}>
+              <TableCell>
+                <Chip
+                  label={c.severity}
+                  size="small"
+                  color={severityColor(c.severity)}
+                />
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                  {c.conflict_type}
+                </Typography>
+              </TableCell>
+              <TableCell>{c.description}</TableCell>
+              <TableCell>
+                <Typography variant="body2" color="text.secondary">
+                  {c.suggested_resolution ?? "—"}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+
+const OptionsTable = ({ options }: { options: EvaluatedOption[] }) => {
+  if (options.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        No supplier options yet — claims need to be aggregated into a
+        supply_option belief first.
+      </Typography>
+    )
+  }
+  return (
+    <TableContainer component={Paper} variant="outlined">
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Verdict</TableCell>
+            <TableCell>Supplier</TableCell>
+            <TableCell align="right">Rank</TableCell>
+            <TableCell align="right">Total cost</TableCell>
+            <TableCell align="right">Budget</TableCell>
+            <TableCell>Weather</TableCell>
+            <TableCell>Violations</TableCell>
+            <TableCell>Rationale</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {options.map((o) => (
+            <TableRow key={o.supplier}>
+              <TableCell>
+                {o.allowed ? (
+                  <Chip label="allowed" size="small" color="success" />
+                ) : o.requires_human_approval ? (
+                  <Chip label="needs approval" size="small" color="warning" />
+                ) : (
+                  <Chip label="blocked" size="small" color="error" />
+                )}
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                  {o.supplier}
+                </Typography>
+                {o.origin ? (
+                  <Typography variant="caption" color="text.secondary">
+                    {o.origin}
+                  </Typography>
+                ) : null}
+              </TableCell>
+              <TableCell align="right">{o.cost_rank}</TableCell>
+              <TableCell align="right">
+                {o.total_price_usd === null
+                  ? "—"
+                  : `$${o.total_price_usd.toFixed(2)}`}
+              </TableCell>
+              <TableCell align="right">
+                {o.within_budget === null ? (
+                  "—"
+                ) : o.within_budget ? (
+                  <Chip label="under" size="small" color="success" />
+                ) : (
+                  <Chip label="over" size="small" color="error" />
+                )}
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={o.weather_risk_level}
+                  size="small"
+                  color={weatherColor(o.weather_risk_level)}
+                />
+              </TableCell>
+              <TableCell>
+                {o.violations.length === 0 ? (
+                  "—"
+                ) : (
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                    {o.violations.map((v) => (
+                      <Chip key={v} label={v} size="small" variant="outlined" />
+                    ))}
+                  </Stack>
+                )}
+              </TableCell>
+              <TableCell>
+                <Typography variant="caption" color="text.secondary">
+                  {o.rationale ?? ""}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+
 const IntentDetail = ({ data }: { data: IntentStateResponse }) => {
   const intent = data.intent
   const fields: Array<[string, unknown]> = [
@@ -218,6 +392,20 @@ const IntentDetail = ({ data }: { data: IntentStateResponse }) => {
           </Box>
         ) : null}
       </Paper>
+
+      <Box>
+        <Typography variant="subtitle1" gutterBottom>
+          Options ({data.options.length})
+        </Typography>
+        <OptionsTable options={data.options} />
+      </Box>
+
+      <Box>
+        <Typography variant="subtitle1" gutterBottom>
+          Conflicts ({data.conflicts.length})
+        </Typography>
+        <ConflictsTable conflicts={data.conflicts} />
+      </Box>
 
       <Box>
         <Typography variant="subtitle1" gutterBottom>

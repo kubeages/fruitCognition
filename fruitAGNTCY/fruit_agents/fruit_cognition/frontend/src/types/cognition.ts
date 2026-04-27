@@ -59,10 +59,48 @@ export interface Belief {
   created_at: string
 }
 
+export type ConflictSeverity = "low" | "medium" | "high" | "critical"
+
+export interface Conflict {
+  conflict_id: string
+  intent_id: string
+  conflict_type: string
+  description: string
+  involved_claims: string[]
+  involved_beliefs: string[]
+  severity: ConflictSeverity
+  suggested_resolution: string | null
+  created_at: string
+}
+
+export type WeatherRiskLevel = "low" | "medium" | "high" | "unknown"
+
+export interface EvaluatedOption {
+  intent_id: string
+  supplier: string
+  subject: string
+  available_lb: number | null
+  unit_price_usd: number | null
+  fulfilled_lb: number | null
+  total_price_usd: number | null
+  within_budget: boolean | null
+  cost_rank: number
+  origin: string | null
+  weather_risk_level: WeatherRiskLevel
+  weather_score: number | null
+  weather_reason: string | null
+  allowed: boolean
+  requires_human_approval: boolean
+  violations: string[]
+  rationale: string | null
+}
+
 export interface IntentStateResponse {
   intent: IntentContract
   claims: Claim[]
   beliefs: Belief[]
+  conflicts: Conflict[]
+  options: EvaluatedOption[]
 }
 
 export interface IntentListResponse {
