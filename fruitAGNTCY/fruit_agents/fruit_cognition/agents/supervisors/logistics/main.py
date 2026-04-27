@@ -23,6 +23,7 @@ from common.cors import get_cors_allowed_origins
 from agents.supervisors.logistics.graph import shared
 from agents.logistics.shipper.card import AGENT_CARD
 from api.admin.router import create_admin_router
+from cognition.api.router import create_cognition_router
 from cognition.services.cognition_fabric import get_fabric
 from cognition.services.intent_manager import IntentManager
 from config.config import LLM_MODEL, HOT_RELOAD_MODE, OTEL_SDK_DISABLED
@@ -88,6 +89,7 @@ app.include_router(
         component_name="logistics-supervisor",
     )
 )
+app.include_router(create_cognition_router())
 
 
 class PromptRequest(BaseModel):

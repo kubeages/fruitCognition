@@ -11,6 +11,7 @@ import os
 from api.admin.router import create_admin_router
 from api.agentic_workflows.router import create_agentic_workflows_router
 from api.agentic_workflows.workflows import set_starting_workflows
+from cognition.api.router import create_cognition_router
 from common.cors import get_cors_allowed_origins
 
 import uvicorn
@@ -45,6 +46,7 @@ def create_agentic_workflows_app() -> FastAPI:
 
     app.include_router(create_agentic_workflows_router())
     app.include_router(create_admin_router(component_name="agentic-workflows-api"))
+    app.include_router(create_cognition_router())
     return app
 
 
