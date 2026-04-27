@@ -255,7 +255,7 @@ This means iter 9 (Resolver) and iter 12 (Guardrail) both check `price_above_bud
 ```text
 fruitAGNTCY/
   fruit_agents/
-    lungo/
+    fruit_cognition/
       cognition/
         __init__.py
 
@@ -310,7 +310,7 @@ Frontend additions:
 ```text
 fruitAGNTCY/
   fruit_agents/
-    lungo/
+    fruit_cognition/
       frontend/
         src/
           types/
@@ -336,20 +336,20 @@ fruitAGNTCY/
 
 ## 6.1 Integration Map
 
-The cognition layer is **additive**: it sits alongside the existing lungo agents, not in front of them. This subsection names the concrete files and entry points each iteration touches in the existing codebase, so the wiring is unambiguous before iteration 1 begins.
+The cognition layer is **additive**: it sits alongside the existing fruit_cognition agents, not in front of them. This subsection names the concrete files and entry points each iteration touches in the existing codebase, so the wiring is unambiguous before iteration 1 begins.
 
 ### Hook points in existing code
 
 | Hook | Existing file | What gets added | First used in |
 |---|---|---|---|
-| Chat entry point | `lungo/agents/agentic-workflows-api/...` (FastAPI app that receives user prompts) | Call `IntentManager.create_from_prompt()` and propagate `intent_id` into the supervisor invocation context. | iter 2 |
-| Auction supervisor | `lungo/agents/supervisors/auction/graph/graph.py` (LangGraph) | Add a "claim mapping" node after the farm-aggregation step. | iter 4 |
-| Logistics supervisor | `lungo/agents/supervisors/logistics/graph/graph.py` (LangGraph) | Same: claim mapping node post-aggregation. | iter 4 |
+| Chat entry point | `fruit_cognition/agents/agentic-workflows-api/...` (FastAPI app that receives user prompts) | Call `IntentManager.create_from_prompt()` and propagate `intent_id` into the supervisor invocation context. | iter 2 |
+| Auction supervisor | `fruit_cognition/agents/supervisors/auction/graph/graph.py` (LangGraph) | Add a "claim mapping" node after the farm-aggregation step. | iter 4 |
+| Logistics supervisor | `fruit_cognition/agents/supervisors/logistics/graph/graph.py` (LangGraph) | Same: claim mapping node post-aggregation. | iter 4 |
 | Outbound A2A messages | App SDK send-points in farms and supervisors | Optional SSTP envelope wrapper, gated by `COGNITION_ENVELOPE_ENABLED`. | iter 3 |
-| Read API | `lungo/agents/agentic-workflows-api/api/routes.py` (or sibling) | New `/cognition/...` routes mounted on the same FastAPI app. | iter 6 |
-| Frontend | `lungo/frontend/src/` | New `cognition/` page + components, no changes to existing chat. | iter 7 |
-| Persistence | Existing lungo Postgres deployment | New `cognition_*` tables in the same database. Migrations live under `cognition/db/migrations/`. | iter 16 |
-| Observability | `lungo/common/llm.py` and existing `ioa_observe` integration | Cognition-specific spans + metrics. Note: under OCP we currently set `OTEL_SDK_DISABLED=true` to dodge the ioa_observe NonRecordingSpan crash — re-enabling tracing for cognition spans will require either pinning the SDK to a working version or using a separate exporter. | iter 17 |
+| Read API | `fruit_cognition/agents/agentic-workflows-api/api/routes.py` (or sibling) | New `/cognition/...` routes mounted on the same FastAPI app. | iter 6 |
+| Frontend | `fruit_cognition/frontend/src/` | New `cognition/` page + components, no changes to existing chat. | iter 7 |
+| Persistence | Existing fruit_cognition Postgres deployment | New `cognition_*` tables in the same database. Migrations live under `cognition/db/migrations/`. | iter 16 |
+| Observability | `fruit_cognition/common/llm.py` and existing `ioa_observe` integration | Cognition-specific spans + metrics. Note: under OCP we currently set `OTEL_SDK_DISABLED=true` to dodge the ioa_observe NonRecordingSpan crash — re-enabling tracing for cognition spans will require either pinning the SDK to a working version or using a separate exporter. | iter 17 |
 
 ### Process layout
 
@@ -565,7 +565,7 @@ class IntentManager:
 
 ### Integration
 
-- Single hook point: the FastAPI handler in `lungo/agents/agentic-workflows-api/...` that receives user prompts. Add a call to `IntentManager.create_from_prompt(prompt)` immediately after the prompt is parsed and **before** the supervisor is invoked.
+- Single hook point: the FastAPI handler in `fruit_cognition/agents/agentic-workflows-api/...` that receives user prompts. Add a call to `IntentManager.create_from_prompt(prompt)` immediately after the prompt is parsed and **before** the supervisor is invoked.
 - Pass the resulting `intent_id` into the supervisor's invocation context (LangGraph state) so downstream nodes can attach it to outbound messages.
 - No changes to the supervisor graphs themselves in this iteration — they only need to *carry* the `intent_id`, not act on it yet.
 
@@ -754,8 +754,8 @@ policy
 ### Integration
 
 - Add a new LangGraph node `claim_mapping` in both supervisor graphs:
-  - `lungo/agents/supervisors/auction/graph/graph.py`
-  - `lungo/agents/supervisors/logistics/graph/graph.py`
+  - `fruit_cognition/agents/supervisors/auction/graph/graph.py`
+  - `fruit_cognition/agents/supervisors/logistics/graph/graph.py`
 - Position: **after** the farm/MCP/logistics tool aggregation node, **before** any response synthesis. The node reads the aggregated tool results from graph state, runs them through `ClaimMapper`, and writes the resulting `Claim[]` back into graph state.
 - ClaimMapper is per-agent-type pluggable: a farm response → fan out to inventory + price + quality claims; a weather MCP response → one weather_risk claim; a logistics response → shipping_cost + delivery_sla claims.
 - Existing supervisor output (the chat response) is unchanged in this iteration. Claims are produced silently; iter 5 stores them, iter 6 exposes them.

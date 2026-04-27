@@ -193,7 +193,7 @@ def _wait_http_ready(
 def orchestrate_session_services():
     """
     Start Directory stack (postgres + zot + dir-api-server) for integration tests, analogous
-    to lungo's session slim/nats/otel compose setup.
+    to fruit_cognition's session slim/nats/otel compose setup.
     """
     print("\n--- Setting up session level service integrations ---")
     down(files)

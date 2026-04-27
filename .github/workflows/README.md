@@ -8,7 +8,7 @@ This directory contains CI/CD workflows for building images, packaging Helm char
 |----------|---------|----------|
 | [`docker-build-push.yaml`](.github/workflows/docker-build-push.yaml) | Build multi-arch Docker images for all agents and optionally push to GHCR | push (main, tags), pull_request (main), workflow_dispatch |
 | [`helm-push.yaml`](.github/workflows/helm-push.yaml) | Lint, package, and (on push to main) push Helm charts to GHCR (OCI) | push (main), pull_request (main), workflow_dispatch |
-| [`test.yaml`](.github/workflows/test.yaml) | Integration test matrix (lungo, recruiter) exposed as reusable workflow | pull_request (main), push (main), workflow_call |
+| [`test.yaml`](.github/workflows/test.yaml) | Integration test matrix (fruit_cognition, recruiter) exposed as reusable workflow | pull_request (main), push (main), workflow_call |
 | [`version-override-test.yaml`](.github/workflows/version-override-test.yaml) | Example invocation of reusable tests with dependency/image overrides | workflow_dispatch |
 | [`docs.yaml`](.github/workflows/docs.yaml) | Publish MkDocs site to GitHub Pages (gh-pages) | push (main) |
 
@@ -44,7 +44,7 @@ Chart version is taken from Chart.yaml (version field). Bump that value to publi
 
 ## test (reusable)
 
-Provides integration test execution via uv for suites (lungo and recruiter). Exposes inputs for dependency and Docker image overrides.
+Provides integration test execution via uv for suites (fruit_cognition and recruiter). Exposes inputs for dependency and Docker image overrides.
 
 Inputs:
 

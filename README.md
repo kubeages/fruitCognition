@@ -11,7 +11,7 @@ a recruiter that discovers agents through the AGNTCY directory.
 
 | Path | What lives there |
 |---|---|
-| [`fruitAGNTCY/fruit_agents/lungo`](fruitAGNTCY/fruit_agents/lungo) | Full demo: 3 farms + auction supervisor + group-comm logistics + recruiter + UI. |
+| [`fruitAGNTCY/fruit_agents/fruit_cognition`](fruitAGNTCY/fruit_agents/fruit_cognition) | Full demo: 3 farms + auction supervisor + group-comm logistics + recruiter + UI. |
 | [`fruitAGNTCY/fruit_agents/recruiter`](fruitAGNTCY/fruit_agents/recruiter) | Standalone recruiter agent backed by a Google ADK agent + AGNTCY `dirctl` tool. |
 | `.github/workflows` | CI: per-service container builds → `ghcr.io/kubeages/fruit-agntcy/*`. |
 

@@ -69,7 +69,7 @@ class RecruiterAgentExecutor(AgentExecutor):
         logger.info(f"[agent_executor] Received prompt: {prompt!r}")
 
         # Extract DataParts from the incoming A2A message.
-        # The Lungo supervisor may send agent records (e.g. for evaluation)
+        # The FruitCognition supervisor may send agent records (e.g. for evaluation)
         # as DataParts alongside the text prompt.  We seed them into the
         # session state so that downstream sub-agents (like agent_evaluator)
         # can access them immediately.

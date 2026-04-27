@@ -30,11 +30,11 @@ A couple architectural (agentic design) patterns used throughout FruitAGNTCY:
 
 1. Supervisor–workers: One supervisor agent holds the agentic workflow (e.g. LangGraph), receives user input, and
    delegates to worker agents via A2A. Workers do not coordinate with each other; they respond to the supervisor.
-   Supports broadcast (e.g. “inventory from all farms”) and unicast (e.g. “order at Colombia”). Example: Lungo
-   auction/fruit buying and Lungo recruiter/capability discovery.
+   Supports broadcast (e.g. “inventory from all farms”) and unicast (e.g. “order at Colombia”). Example: FruitCognition
+   auction/fruit buying and FruitCognition recruiter/capability discovery.
 2. Group chat / coordination: A supervisor sets up and moderates a shared conversation (group). Multiple specialized
    agents (e.g. farm, shipper, accountant, helpdesk) are members and talk to each other as well as to the supervisor to
-   complete a task. Example: Lungo logistics/order fulfillment.
+   complete a task. Example: FruitCognition logistics/order fulfillment.
 
 A single **(agentic design) pattern** in FruitAGNTCY drives one or more **use-case** implementations.
 
@@ -58,8 +58,8 @@ of that pattern to achieve a concrete goal within a defined context.
 
 The following example (agentic) use-cases are existing in FruitAGNTCY:
 
-- Supervisor-workers: Lungo auction / fruit buying, Lungo recruiter / capability discovery.
-- Group chat / coordination: Lungo logistics / order fulfillment.
+- Supervisor-workers: FruitCognition auction / fruit buying, FruitCognition recruiter / capability discovery.
+- Group chat / coordination: FruitCognition logistics / order fulfillment.
 
 ---
 

@@ -20,8 +20,8 @@ on:
         required: false
         type: boolean
         default: false
-      build_lungo:
-        description: 'Whether to build the lungo container images.'
+      build_fruit_cognition:
+        description: 'Whether to build the fruit_cognition container images.'
         required: false
         type: boolean
         default: true
@@ -37,14 +37,14 @@ on:
         default: ''
 
 env:
-  LUNGO_DIR: fruitAGNTCY/fruit_agents/lungo
+  FRUIT_COGNITION_DIR: fruitAGNTCY/fruit_agents/fruit_cognition
   RECRUITER_DIR: fruitAGNTCY/fruit_agents/recruiter
 
 jobs:
   subprojects-to-build:
     runs-on: ubuntu-latest
     outputs:
-      build_lungo: ${{ steps.choose-subprojects.outputs.build_lungo }}
+      build_fruit_cognition: ${{ steps.choose-subprojects.outputs.build_fruit_cognition }}
       build_recruiter: ${{ steps.choose-subprojects.outputs.build_recruiter }}
     defaults:
       run:
@@ -66,27 +66,27 @@ jobs:
       - name: Log relevant dispatch inputs
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "build_lungo=${{ inputs.build_lungo }}"
+          echo "build_fruit_cognition=${{ inputs.build_fruit_cognition }}"
           echo "build_recruiter=${{ inputs.build_recruiter }}"
 
       - name: Prepare subproject paths JSON lists
         if: ${{ github.event_name == 'pull_request' }}
         id: prepare-path-lists
         run: |
-          paths_json_lungo=$(echo $WORKFLOW_FILES_LIST_JSON | jq -c -r --arg new_val "$LUNGO_DIR" '[$new_val] + .')
-          echo "paths_json_lungo=$paths_json_lungo" | tee -a $GITHUB_OUTPUT
+          paths_json_fruit_cognition=$(echo $WORKFLOW_FILES_LIST_JSON | jq -c -r --arg new_val "$FRUIT_COGNITION_DIR" '[$new_val] + .')
+          echo "paths_json_fruit_cognition=$paths_json_fruit_cognition" | tee -a $GITHUB_OUTPUT
 
           paths_json_recruiter=$(echo $WORKFLOW_FILES_LIST_JSON | jq -c -r --arg new_val "$RECRUITER_DIR" '[$new_val] + .')
           echo "paths_json_recruiter=$paths_json_recruiter" | tee -a $GITHUB_OUTPUT
 
-      - name: Check paths have changes for Lungo
+      - name: Check paths have changes for FruitCognition
         if: ${{ github.event_name == 'pull_request' }}
-        id: check-paths-lungo
+        id: check-paths-fruit-cognition
         uses: ./.github/actions/check-paths-have-changes
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
-          paths_json_list: ${{ steps.prepare-path-lists.outputs.paths_json_lungo }}
+          paths_json_list: ${{ steps.prepare-path-lists.outputs.paths_json_fruit_cognition }}
 
       - name: Check paths have changes for Recruiter
         if: ${{ github.event_name == 'pull_request' }}
@@ -100,21 +100,21 @@ jobs:
       - name: Determine build choices for subprojects
         id: choose-subprojects
         run: |
-          build_lungo=false
+          build_fruit_cognition=false
           build_recruiter=false
 
           if [[ "${{ github.event_name }}" == "push" ]]; then
-            build_lungo=true
+            build_fruit_cognition=true
             build_recruiter=true
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            build_lungo=${{ inputs.build_lungo }}
+            build_fruit_cognition=${{ inputs.build_fruit_cognition }}
             build_recruiter=${{ inputs.build_recruiter }}
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            build_lungo=${{ steps.check-paths-lungo.outputs.changed }}
+            build_fruit_cognition=${{ steps.check-paths-fruit-cognition.outputs.changed }}
             build_recruiter=${{ steps.check-paths-recruiter.outputs.changed }}
           fi
 
-          echo "build_lungo=$build_lungo" | tee -a $GITHUB_OUTPUT
+          echo "build_fruit_cognition=$build_fruit_cognition" | tee -a $GITHUB_OUTPUT
           echo "build_recruiter=$build_recruiter" | tee -a $GITHUB_OUTPUT
 
   compute-build-parameters:
@@ -171,41 +171,41 @@ jobs:
           echo "git_branch=$git_branch" | tee -a $GITHUB_OUTPUT
 
 
-  docker-build-lungo:
+  docker-build-fruit-cognition:
     needs: [subprojects-to-build, compute-build-parameters]
-    if: ${{ needs.subprojects-to-build.outputs.build_lungo == 'true' }}
+    if: ${{ needs.subprojects-to-build.outputs.build_fruit_cognition == 'true' }}
 
     strategy:
       matrix:
         image:
-        - name: lungo-ui
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.ui
+        - name: fruit-cognition-ui
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.ui
         - name: auction-supervisor
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.auction-supervisor
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.auction-supervisor
         - name: agentic-workflows-api
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.agentic-workflows-api
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.agentic-workflows-api
         - name: brazil-farm
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.brazil-farm
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.brazil-farm
         - name: colombia-farm
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.colombia-farm
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.colombia-farm
         - name: vietnam-farm
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.vietnam-farm
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.vietnam-farm
         - name: weather-mcp-server
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.weather-mcp
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.weather-mcp
         - name: payment-mcp-server
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.payment-mcp
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.payment-mcp
         - name: logistics-shipper
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.logistics-shipper
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.logistics-shipper
         - name: logistics-accountant
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.logistics-accountant
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.logistics-accountant
         - name: logistics-farm
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.logistics-farm
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.logistics-farm
         - name: logistics-supervisor
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.logistics-supervisor
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.logistics-supervisor
         - name: logistics-helpdesk
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.logistics-helpdesk
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.logistics-helpdesk
         - name: recruiter-supervisor
-          dockerfile: fruitAGNTCY/fruit_agents/lungo/docker/Dockerfile.recruiter-supervisor
+          dockerfile: fruitAGNTCY/fruit_agents/fruit_cognition/docker/Dockerfile.recruiter-supervisor
 
     permissions: # permissions can only be maintained or reduced (not elevated) throughout a chain of workflows
       packages: write

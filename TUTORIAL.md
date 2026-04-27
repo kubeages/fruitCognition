@@ -5,7 +5,7 @@ supply chain use cases to showcase how components in the **AGNTCY Internet of Ag
 
 You will:
 
-1. Interact with **two demos** (Lungo Auction, Lungo Logistic)
+1. Interact with **two demos** (FruitCognition Auction, FruitCognition Logistic)
 2. Spin up the demo stack with docker compose
 3. Use **preconfigured prompts** (and your own)
 4. Explore **traces and metrics**
@@ -16,7 +16,7 @@ You will:
 - **Node.js ≥ 16.14.0** (if you run any UI locally outside of Docker)
 - **uv** (Python environment manager)
 
-**IDE setup for CI (lint/format):** To run ESLint and Prettier on save or before commit, **Cursor is recommended**. In Cursor: enable **Format on Save** (Settings → search “format on save”) and ensure the ESLint extension is enabled; set the workspace root or open the `fruitAGNTCY/fruit_agents/lungo/frontend` folder so that `npm run lint:check` and `npm run format:check` apply to the Lungo frontend. You can also run these scripts from the terminal in that directory. The same checks run in CI (see `.github/workflows/fe-ci.yaml`, job `frontend-build`).
+**IDE setup for CI (lint/format):** To run ESLint and Prettier on save or before commit, **Cursor is recommended**. In Cursor: enable **Format on Save** (Settings → search “format on save”) and ensure the ESLint extension is enabled; set the workspace root or open the `fruitAGNTCY/fruit_agents/fruit_cognition/frontend` folder so that `npm run lint:check` and `npm run format:check` apply to the FruitCognition frontend. You can also run these scripts from the terminal in that directory. The same checks run in CI (see `.github/workflows/fe-ci.yaml`, job `frontend-build`).
 
 Clone the FruitAGNTCY repository:
 ```bash
@@ -29,23 +29,23 @@ cd fruitCognition
 ```
 fruitAGNTCY/
   fruit_agents/
-    lungo/
+    fruit_cognition/
       agents/
         supervisors/      # Auction and Logistic supervisors
         farms/            # Brazil/Colombia/Vietnam farms
         logistics/        # Logistics farm, accountant, helpdesk, and shipper
         mcp_servers/      # Weather MCP server
-      docker-compose.yml  # Lungo Docker Compose
+      docker-compose.yml  # FruitCognition Docker Compose
 
     recruiter/            # Standalone recruiter agent (Google ADK + AGNTCY dirctl)
 ```
 
-## Lungo Auction & Logistics
+## FruitCognition Auction & Logistics
 
 ### 1. Setup
 
 ```bash
-cd fruitAGNTCY/fruit_agents/lungo
+cd fruitAGNTCY/fruit_agents/fruit_cognition
 ```
 
 ```bash
@@ -163,7 +163,7 @@ establish unique identities, and validate authenticity through identity badges. 
 sending any orders. Try sending an order to the **Brazil farm** to see what happens when the target agent is
 **unverified**: `I need 50 lb of fruit beans from Brazil for 0.50 cents per lb`
 
-Check out the supervisor agent’s [tools](fruitAGNTCY/fruit_agents/lungo/agents/supervisors/auction/graph/tools.py) to
+Check out the supervisor agent’s [tools](fruitAGNTCY/fruit_agents/fruit_cognition/agents/supervisors/auction/graph/tools.py) to
 see how it integrates with the **App SDK** and **Identity Service**.
 
 **Observe in your Docker Compose logs how:**
@@ -186,7 +186,7 @@ to communicate directly with one another.
 This style of agentic communication is powered by **AGNTCY’s SLIM**. Unlike the **Auction flow**, this transport is
 **not interchangeable**, as **SLIM** is the only protocol that supports **multi-agent group chat communication**.
 
-Explore the [`Logistic Supervisor tools`](fruitAGNTCY/fruit_agents/lungo/agents/supervisors/logistic/graph/tools.py)
+Explore the [`Logistic Supervisor tools`](fruitAGNTCY/fruit_agents/fruit_cognition/agents/supervisors/logistic/graph/tools.py)
 to see how the supervisor initializes and manages the SLIM group chat.
 
 **Observe** how agents coordinate and negotiate within the chat, collaborating to complete their designated tasks and
@@ -214,28 +214,28 @@ Once you’ve executed a few prompts:
      - **User/Password:** `admin` / `admin`
    - If already present, select the **ClickHouse** datasource (pre-configured in the Docker Compose setup).
 
-   ![Screenshot: ClickHouse Datasource](fruitAGNTCY/fruit_agents/lungo/images/grafana_clickhouse_datasource.png)
-   ![Screenshot: ClickHouse Connection](fruitAGNTCY/fruit_agents/lungo/images/grafana_clickhouse_connection.png)
+   ![Screenshot: ClickHouse Datasource](fruitAGNTCY/fruit_agents/fruit_cognition/images/grafana_clickhouse_datasource.png)
+   ![Screenshot: ClickHouse Connection](fruitAGNTCY/fruit_agents/fruit_cognition/images/grafana_clickhouse_connection.png)
 
 4. **Import the OTEL Traces Dashboard**
 
    - In the left sidebar, click on **"Dashboards" > "New" > "Import"**.
    - Upload or paste the JSON definition for the OTEL traces dashboard, located here:
-     [`lungo_dashboard.json`](fruitAGNTCY/fruit_agents/lungo/lungo_dashboard.json)
+     [`fruit_cognition_dashboard.json`](fruitAGNTCY/fruit_agents/fruit_cognition/fruit_cognition_dashboard.json)
    - **When prompted, select `grafana-clickhouse-datasource` as the datasource.**
    - Click **"Import"** to add the dashboard.
 
-   ![Screenshot: Import Dashboard](fruitAGNTCY/fruit_agents/lungo/images/grafana_import_dashboard.png)
+   ![Screenshot: Import Dashboard](fruitAGNTCY/fruit_agents/fruit_cognition/images/grafana_import_dashboard.png)
 
 5. **View Traces**
 
    - Navigate to the imported dashboard.
-   - You should see traces and spans generated by the Lungo agents as they process requests.
+   - You should see traces and spans generated by the FruitCognition agents as they process requests.
    - **To view details of a specific trace, click on a TraceID in the dashboard. This will open the full trace and its
      spans for further inspection.**
 
-   ![Screenshot: OTEL Dashboard](fruitAGNTCY/fruit_agents/lungo/images/dashboard_grafana.png) ![Screenshot: OTEL
-   Traces](fruitAGNTCY/fruit_agents/lungo/images/dashboard_traces.png)
+   ![Screenshot: OTEL Dashboard](fruitAGNTCY/fruit_agents/fruit_cognition/images/dashboard_grafana.png) ![Screenshot: OTEL
+   Traces](fruitAGNTCY/fruit_agents/fruit_cognition/images/dashboard_traces.png)
 6. Explore:
    - **Trace timelines** showing how each agent processed your prompt
    - **Span hierarchies** (Supervisor → Farm or Logistics Agents)
@@ -254,7 +254,7 @@ docker compose down
 ## Recap
 
 In this workshop, you:
-- Deployed Lungo’s **Auction** and **Logistic** demos via Docker Compose and explored supervisor-worker and group chat
+- Deployed FruitCognition’s **Auction** and **Logistic** demos via Docker Compose and explored supervisor-worker and group chat
   agentic patterns
 - Interacted with real-time **agentic UIs**
 - Observed communication traces in **Grafana**

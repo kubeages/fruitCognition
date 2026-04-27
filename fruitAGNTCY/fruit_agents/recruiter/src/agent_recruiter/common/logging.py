@@ -3,14 +3,14 @@
 
 """
 Logging configuration using loguru with structured logging support.
-Unified format with lungo: UTC timestamp, level, name - message; flush after each write.
+Unified format with fruit_cognition: UTC timestamp, level, name - message; flush after each write.
 """
 
 import sys
 from pathlib import Path
 from loguru import logger
 
-# Canonical format matching lungo: YYYY-MM-DD HH:mm:ss.mmm | LEVEL     | name - message
+# Canonical format matching fruit_cognition: YYYY-MM-DD HH:mm:ss.mmm | LEVEL     | name - message
 LOG_FORMAT = (
     "{time:YYYY-MM-DD HH:mm:ss.SSS!UTC} | {level: <8} | {extra[name]} - {message}"
 )
