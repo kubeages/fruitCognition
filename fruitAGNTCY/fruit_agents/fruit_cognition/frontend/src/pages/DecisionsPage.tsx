@@ -37,6 +37,7 @@ import {
   rejectIntent,
   requestAlternativeIntent,
 } from "@/utils/cognitionApi"
+import { fruitIcon } from "@/utils/fruitIcons"
 import type { ApprovalRequest, Plan } from "@/types/cognition"
 
 type ActionFn = (intentId: string, note?: string) => Promise<unknown>
@@ -100,9 +101,15 @@ const ApprovalCard = ({
     ["Max price", intent.max_price_usd ?? "—"],
     ["Delivery", intent.delivery_days ?? "—"],
   ]
+  const { Icon: FruitIconCmp, color: fruitColor } = fruitIcon(intent.fruit_type)
+
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+    <Paper
+      variant="outlined"
+      sx={{ p: 2, borderLeft: `4px solid ${fruitColor}` }}
+    >
+      <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
+        <FruitIconCmp size={26} color={fruitColor} strokeWidth={1.75} />
         <Typography
           variant="subtitle1"
           sx={{ fontFamily: "monospace", flexGrow: 1 }}
@@ -117,6 +124,7 @@ const ApprovalCard = ({
         <Chip
           label={`confidence ${decision.confidence.toFixed(2)}`}
           size="small"
+          color="primary"
         />
       </Stack>
 
@@ -164,7 +172,7 @@ const ApprovalCard = ({
       <Stack direction="row" spacing={1}>
         <Button
           startIcon={<CheckCircleIcon />}
-          color="success"
+          color="primary"
           variant="contained"
           size="small"
           disabled={busy}
@@ -184,7 +192,7 @@ const ApprovalCard = ({
         </Button>
         <Button
           startIcon={<ChangeCircleIcon />}
-          color="primary"
+          color="secondary"
           variant="outlined"
           size="small"
           disabled={busy}
@@ -319,10 +327,23 @@ const DecisionsPage = () => {
         {loading && items.length === 0 ? (
           <CircularProgress />
         ) : items.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            Nothing pending. When an intent's recommended plan triggers a policy
-            in <code>human_approval_required_if</code>, it shows up here.
-          </Typography>
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            {(() => {
+              const { Icon, color } = fruitIcon(null)
+              return <Icon size={56} color={color} strokeWidth={1.5} />
+            })()}
+            <Typography variant="body1" sx={{ mt: 2, fontWeight: 600 }}>
+              Nothing to approve right now.
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mt: 0.5 }}
+            >
+              Plans that trip a policy in{" "}
+              <code>human_approval_required_if</code> show up here.
+            </Typography>
+          </Box>
         ) : (
           <Stack spacing={2}>
             {items.map((it) => (

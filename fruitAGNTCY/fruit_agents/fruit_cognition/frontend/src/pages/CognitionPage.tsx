@@ -39,6 +39,7 @@ import {
   fetchIntentState,
   getCognitionApiUrl,
 } from "@/utils/cognitionApi"
+import { fruitIcon } from "@/utils/fruitIcons"
 import type {
   Belief,
   Claim,
@@ -52,19 +53,19 @@ import type {
 
 const statusColor = (
   status: string,
-): "default" | "primary" | "success" | "warning" | "error" => {
+): "default" | "primary" | "secondary" | "info" | "warning" | "error" => {
   switch (status) {
     case "approved":
     case "committed":
-      return "success"
+      return "primary" // theme green = "ready to ship"
     case "approval_required":
-      return "warning"
+      return "secondary" // theme orange = "awaiting picker"
     case "rejected":
     case "failed":
       return "error"
     case "grounding":
     case "negotiating":
-      return "primary"
+      return "info"
     default:
       return "default"
   }
@@ -353,8 +354,12 @@ const IntentDetail = ({ data }: { data: IntentStateResponse }) => {
   return (
     <Stack spacing={3}>
       <Paper variant="outlined" sx={{ p: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-          <Typography variant="h6" sx={{ fontFamily: "monospace" }}>
+        <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
+          {(() => {
+            const { Icon, color } = fruitIcon(intent.fruit_type)
+            return <Icon size={28} color={color} strokeWidth={1.75} />
+          })()}
+          <Typography variant="h6" sx={{ fontFamily: "monospace", flex: 1 }}>
             {intent.intent_id}
           </Typography>
           <Chip
@@ -538,28 +543,56 @@ const CognitionPage = () => {
             </Box>
             <Divider />
             {intents.length === 0 && !loadingList ? (
-              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                No intents captured yet. Send a chat prompt to generate one.
-              </Typography>
+              <Box sx={{ p: 4, textAlign: "center" }}>
+                {(() => {
+                  const { Icon, color } = fruitIcon(null)
+                  return <Icon size={48} color={color} strokeWidth={1.5} />
+                })()}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1.5 }}
+                >
+                  No fruit orders yet.
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", mt: 0.5 }}
+                >
+                  Send a chat prompt to start one.
+                </Typography>
+              </Box>
             ) : (
               <List dense disablePadding>
-                {intents.map((it) => (
-                  <ListItemButton
-                    key={it.intent_id}
-                    selected={selectedId === it.intent_id}
-                    onClick={() => setSelectedId(it.intent_id)}
-                  >
-                    <ListItemText
-                      primary={it.fruit_type ?? it.goal}
-                      secondary={`${it.quantity_lb ?? "?"} lb · ${it.intent_id.slice(0, 18)}…`}
-                    />
-                    <Chip
-                      label={it.status}
-                      size="small"
-                      color={statusColor(it.status)}
-                    />
-                  </ListItemButton>
-                ))}
+                {intents.map((it) => {
+                  const { Icon, color } = fruitIcon(it.fruit_type)
+                  return (
+                    <ListItemButton
+                      key={it.intent_id}
+                      selected={selectedId === it.intent_id}
+                      onClick={() => setSelectedId(it.intent_id)}
+                      sx={{ gap: 1.5 }}
+                    >
+                      <Icon size={22} color={color} strokeWidth={1.75} />
+                      <ListItemText
+                        primary={
+                          it.fruit_type
+                            ? it.fruit_type[0].toUpperCase() +
+                              it.fruit_type.slice(1)
+                            : it.goal
+                        }
+                        secondary={`${it.quantity_lb ?? "?"} lb · ${it.intent_id.slice(0, 18)}…`}
+                        primaryTypographyProps={{ fontWeight: 600 }}
+                      />
+                      <Chip
+                        label={it.status}
+                        size="small"
+                        color={statusColor(it.status)}
+                      />
+                    </ListItemButton>
+                  )
+                })}
               </List>
             )}
           </Paper>
