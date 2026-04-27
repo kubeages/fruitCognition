@@ -14,9 +14,14 @@ from pydantic import BaseModel, Field
 
 from cognition.schemas.belief import Belief
 from cognition.schemas.claim import Claim
+from cognition.schemas.conflict import Conflict
 from cognition.schemas.intent_contract import IntentContract
 from cognition.services.belief_builder import BeliefBuilder
 from cognition.services.cognition_fabric import get_fabric
+from cognition.services.engine_pipeline import (
+    EvaluatedOption,
+    evaluate_intent,
+)
 
 
 _belief_builder = BeliefBuilder()
@@ -38,6 +43,8 @@ class IntentStateResponse(BaseModel):
     intent: IntentContract
     claims: list[Claim] = Field(default_factory=list)
     beliefs: list[Belief] = Field(default_factory=list)
+    conflicts: list[Conflict] = Field(default_factory=list)
+    options: list[EvaluatedOption] = Field(default_factory=list)
 
 
 def _summary(intent: IntentContract) -> IntentSummary:
@@ -82,6 +89,24 @@ def create_cognition_router() -> APIRouter:
         claims = get_fabric().list_claims(intent_id)
         return _belief_builder.build(intent_id=intent_id, claims=claims)
 
+    @router.get("/intent/{intent_id}/conflicts", response_model=list[Conflict])
+    async def list_conflicts(
+        intent_id: Annotated[str, Path(min_length=1)],
+    ) -> list[Conflict]:
+        evaluation = evaluate_intent(intent_id)
+        if evaluation is None:
+            raise HTTPException(status_code=404, detail=f"intent {intent_id!r} not found")
+        return evaluation.conflicts
+
+    @router.get("/intent/{intent_id}/options", response_model=list[EvaluatedOption])
+    async def list_options(
+        intent_id: Annotated[str, Path(min_length=1)],
+    ) -> list[EvaluatedOption]:
+        evaluation = evaluate_intent(intent_id)
+        if evaluation is None:
+            raise HTTPException(status_code=404, detail=f"intent {intent_id!r} not found")
+        return evaluation.options
+
     @router.get("/intent/{intent_id}/state", response_model=IntentStateResponse)
     async def get_state(
         intent_id: Annotated[str, Path(min_length=1)],
@@ -92,6 +117,13 @@ def create_cognition_router() -> APIRouter:
             raise HTTPException(status_code=404, detail=f"intent {intent_id!r} not found")
         claims = fabric.list_claims(intent_id)
         beliefs = _belief_builder.build(intent_id=intent_id, claims=claims)
-        return IntentStateResponse(intent=intent, claims=claims, beliefs=beliefs)
+        evaluation = evaluate_intent(intent_id)
+        return IntentStateResponse(
+            intent=intent,
+            claims=claims,
+            beliefs=beliefs,
+            conflicts=evaluation.conflicts if evaluation else [],
+            options=evaluation.options if evaluation else [],
+        )
 
     return router
