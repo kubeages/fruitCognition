@@ -26,7 +26,7 @@ telemetry = [
 
 [[package]]
 name = "agntcy-app-sdk"
-version = "0.5.4"
+version = "0.5.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "a2a-sdk" },
@@ -38,15 +38,14 @@ dependencies = [
     { name = "langchain-community" },
     { name = "mcp", extra = ["cli"] },
     { name = "nats-py" },
-    { name = "protobuf" },
     { name = "slim-bindings" },
     { name = "slima2a" },
     { name = "structlog" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bc/1a/77a628ca871ecf1e8a7c8dd95763ffc86113900e94334deb5b443278dbed/agntcy_app_sdk-0.5.4.tar.gz", hash = "sha256:96b7452a3dd20c4b35a261d46867f7f73f0d2bc552a48b9469760d6149415da1", size = 3087074, upload-time = "2026-03-12T20:06:59.058Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/a4/c8022ec731c7e4467471bdd4e6dce0a3b929fe9084f4e9ba20dd58bcc07f/agntcy_app_sdk-0.5.5.tar.gz", hash = "sha256:806061b93874145d80cd78b64c52cbb14b2b2341b2eb56e9349149f9167e5c36", size = 3100336, upload-time = "2026-04-09T21:05:24.19Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/bd/66fd4160d18b47dec970fc332aebd6e6a9c6bc8b1a8e5f24e900a0faae81/agntcy_app_sdk-0.5.4-py3-none-any.whl", hash = "sha256:1e49600e18557416ebc95862df6098ae5a4607fb55d8350011f7417d5c3dc0be", size = 102573, upload-time = "2026-03-12T20:06:57.599Z" },
+    { url = "https://files.pythonhosted.org/packages/1a/9f/ee4306d60d3e1c25fdf5a63e17b77e4c32db86fcb49ca34361c9ec640ae5/agntcy_app_sdk-0.5.5-py3-none-any.whl", hash = "sha256:c4a6e36216767c7444af5279c7cb078a33fadd7143b161a9261291ef46b472cb", size = 106231, upload-time = "2026-04-09T21:05:22.411Z" },
 ]
 
 [[package]]
@@ -677,6 +676,151 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/16/6c/be9d79775d8abe79b05fa6d23da99ad6e7763a1d080fbae7290b286093fd/frozenlist-1.8.0-cp313-cp313t-win_arm64.whl", hash = "sha256:bf0a7e10b077bf5fb9380ad3ae8ce20ef919a6ad93b4552896419ac7e1d8e042", size = 41749, upload-time = "2025-10-06T05:37:07.431Z" },
     { url = "https://files.pythonhosted.org/packages/9a/9a/e35b4a917281c0b8419d4207f4334c8e8c5dbf4f3f5f9ada73958d937dcc/frozenlist-1.8.0-py3-none-any.whl", hash = "sha256:0c18a16eab41e82c295618a77502e17b195883241c563b00f0aa5106fc4eaa0d", size = 13409, upload-time = "2025-10-06T05:38:16.721Z" },
 ]
+
+[[package]]
+name = "fruit-cognition"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "a2a-sdk" },
+    { name = "agntcy-app-sdk" },
+    { name = "agntcy-identity-service-sdk" },
+    { name = "aiohttp" },
+    { name = "authlib" },
+    { name = "azure-core" },
+    { name = "click" },
+    { name = "coloredlogs" },
+    { name = "cryptography" },
+    { name = "dotenv" },
+    { name = "fastapi" },
+    { name = "filelock" },
+    { name = "google-adk" },
+    { name = "httpx" },
+    { name = "ioa-observe-sdk" },
+    { name = "jsonschema" },
+    { name = "langchain" },
+    { name = "langchain-anthropic" },
+    { name = "langchain-core" },
+    { name = "langchain-google-genai" },
+    { name = "langchain-litellm" },
+    { name = "langchain-openai" },
+    { name = "langchain-text-splitters" },
+    { name = "langgraph" },
+    { name = "langgraph-supervisor" },
+    { name = "langsmith" },
+    { name = "litellm" },
+    { name = "llama-index-core" },
+    { name = "llama-index-llms-azure-openai" },
+    { name = "llama-index-llms-litellm" },
+    { name = "mako" },
+    { name = "marshmallow" },
+    { name = "mcp", extra = ["cli"] },
+    { name = "nltk" },
+    { name = "pillow" },
+    { name = "pyasn1" },
+    { name = "pydantic" },
+    { name = "pygments" },
+    { name = "pyjwt" },
+    { name = "pynacl" },
+    { name = "pypdf" },
+    { name = "python-dotenv" },
+    { name = "python-multipart" },
+    { name = "referencing" },
+    { name = "requests" },
+    { name = "slim-bindings" },
+    { name = "slima2a" },
+    { name = "starlette" },
+    { name = "urllib3" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "agntcy-dir" },
+    { name = "coloredlogs" },
+    { name = "langchain-openai" },
+    { name = "openai" },
+    { name = "openapi-spec-validator" },
+    { name = "prance" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pyyaml" },
+    { name = "sentence-transformers" },
+    { name = "typing-extensions" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "a2a-sdk", specifier = "==0.3.20" },
+    { name = "agntcy-app-sdk", specifier = ">=0.5.5" },
+    { name = "agntcy-dir", marker = "extra == 'dev'", specifier = "==1.0.0" },
+    { name = "agntcy-identity-service-sdk", specifier = "==0.0.7" },
+    { name = "aiohttp", specifier = ">=3.13.4" },
+    { name = "authlib", specifier = ">=1.6.11" },
+    { name = "azure-core", specifier = "==1.38.0" },
+    { name = "click", specifier = ">=8.1.8" },
+    { name = "coloredlogs", specifier = ">=15.0.1" },
+    { name = "coloredlogs", marker = "extra == 'dev'", specifier = ">=15.0.1,<16" },
+    { name = "cryptography", specifier = ">=46.0.7" },
+    { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "fastapi", specifier = ">=0.116.0" },
+    { name = "filelock", specifier = ">=3.20.3" },
+    { name = "google-adk", specifier = ">=1.28.1" },
+    { name = "httpx", specifier = ">=0.23.0" },
+    { name = "ioa-observe-sdk", specifier = ">=1.0.41" },
+    { name = "jsonschema", specifier = ">=4.0.0" },
+    { name = "langchain", specifier = ">=0.3.27" },
+    { name = "langchain-anthropic", specifier = ">=0.3.13" },
+    { name = "langchain-core", specifier = ">=1.2.28" },
+    { name = "langchain-google-genai", specifier = ">=2.1.4" },
+    { name = "langchain-litellm", specifier = "==0.3.5" },
+    { name = "langchain-openai", specifier = ">=0.3.16" },
+    { name = "langchain-openai", specifier = ">=1.1.14" },
+    { name = "langchain-openai", marker = "extra == 'dev'", specifier = ">=1.1.14" },
+    { name = "langchain-text-splitters", specifier = ">=1.1.2" },
+    { name = "langgraph", specifier = ">=0.4.1" },
+    { name = "langgraph", specifier = ">=1.0.10" },
+    { name = "langgraph-supervisor", specifier = ">=0.0.26" },
+    { name = "langsmith", specifier = ">=0.7.31" },
+    { name = "litellm", specifier = ">=1.83.0,<1.83.6" },
+    { name = "llama-index-core", specifier = "==0.14.9" },
+    { name = "llama-index-llms-azure-openai", specifier = "==0.4.2" },
+    { name = "llama-index-llms-litellm", specifier = "==0.6.3" },
+    { name = "mako", specifier = ">=1.3.11" },
+    { name = "marshmallow", specifier = ">=3.26.2" },
+    { name = "mcp", specifier = ">=1.23.0" },
+    { name = "mcp", extras = ["cli"], specifier = ">=1.10.0" },
+    { name = "nltk", specifier = ">=3.9.4" },
+    { name = "openai", marker = "extra == 'dev'", specifier = ">=2.8.0,<3.0" },
+    { name = "openapi-spec-validator", marker = "extra == 'dev'", specifier = ">=0.8.4" },
+    { name = "pillow", specifier = ">=12.2.0" },
+    { name = "prance", marker = "extra == 'dev'", specifier = ">=25.4.8.0" },
+    { name = "pyasn1", specifier = ">=0.6.3" },
+    { name = "pydantic", specifier = ">=2.11.4" },
+    { name = "pygments", specifier = ">=2.20.0" },
+    { name = "pyjwt", specifier = ">=2.12.0" },
+    { name = "pynacl", specifier = ">=1.6.2" },
+    { name = "pypdf", specifier = ">=6.10.2" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0,<0.24" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0,<5" },
+    { name = "python-dotenv", specifier = ">=1.1.0" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "python-multipart", specifier = ">=0.0.26" },
+    { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.3" },
+    { name = "referencing", specifier = ">=0.28.0" },
+    { name = "requests" },
+    { name = "requests", specifier = ">=2.33.0" },
+    { name = "sentence-transformers", marker = "extra == 'dev'", specifier = ">=5.1.1" },
+    { name = "slim-bindings", specifier = "==1.1.0" },
+    { name = "slima2a", specifier = "==0.3.0" },
+    { name = "starlette", specifier = ">=0.49.1" },
+    { name = "typing-extensions", marker = "extra == 'dev'", specifier = ">=4.12.2,<5" },
+    { name = "urllib3", specifier = ">=2.6.3" },
+    { name = "uvicorn", specifier = ">=0.29.0" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "fsspec"
@@ -1499,7 +1643,7 @@ wheels = [
 
 [[package]]
 name = "ioa-observe-sdk"
-version = "1.0.34"
+version = "1.0.41"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
@@ -1542,9 +1686,9 @@ dependencies = [
     { name = "pytest-vcr" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/af/f1/dec0283da1cda029f6a2ada2f515ae906579b9d65482ac98e969e99f68d7/ioa_observe_sdk-1.0.34.tar.gz", hash = "sha256:f2201730bc47f1dfbe9700e69641a194987f28ec3cc99372d2817368ea548f04", size = 75111, upload-time = "2026-02-12T16:07:30.206Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/7d/e0dae4152aca17664814c99771a87ca0ec241dd056ffe4c5e1bd6ec4c8e2/ioa_observe_sdk-1.0.41.tar.gz", hash = "sha256:2b384f6bbc690e8759eed3eab013f5d13a3be70220afab6c5c1207e1332d44bb", size = 83151, upload-time = "2026-04-08T06:44:28.303Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/49/40/376cd740f07076badf552587a71a84419e5b2f344bc3ce171d330f2f7dc1/ioa_observe_sdk-1.0.34-py3-none-any.whl", hash = "sha256:04e4ac2360af52edb5ec8af04537f1c14844a76fcdf444d3e90a1ae1720860b6", size = 82748, upload-time = "2026-02-12T16:07:28.835Z" },
+    { url = "https://files.pythonhosted.org/packages/13/bc/c2c62f65ba0051787029f7e1071abb457b2d8112b92c10011b92711ba911/ioa_observe_sdk-1.0.41-py3-none-any.whl", hash = "sha256:27e765fc79e63f2cc796556c5f1dcbcceac54f7903b133fe847ea4334bd3c5e9", size = 91325, upload-time = "2026-04-08T06:44:27.091Z" },
 ]
 
 [[package]]
@@ -2194,151 +2338,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/08/f6/93b5d123c480bc8c9
 wheels = [
     { url = "https://files.pythonhosted.org/packages/05/50/c5ccd2a50daa0a10c7f3f7d4e6992392454198cd8a7d99fcb96cb60d0686/llama_parse-0.6.54-py3-none-any.whl", hash = "sha256:c66c8d51cf6f29a44eaa8595a595de5d2598afc86e5a33a4cebe5fe228036920", size = 4879, upload-time = "2025-08-01T20:09:22.651Z" },
 ]
-
-[[package]]
-name = "fruit_cognition"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "a2a-sdk" },
-    { name = "agntcy-app-sdk" },
-    { name = "agntcy-identity-service-sdk" },
-    { name = "aiohttp" },
-    { name = "authlib" },
-    { name = "azure-core" },
-    { name = "click" },
-    { name = "coloredlogs" },
-    { name = "cryptography" },
-    { name = "dotenv" },
-    { name = "fastapi" },
-    { name = "filelock" },
-    { name = "google-adk" },
-    { name = "httpx" },
-    { name = "ioa-observe-sdk" },
-    { name = "jsonschema" },
-    { name = "langchain" },
-    { name = "langchain-anthropic" },
-    { name = "langchain-core" },
-    { name = "langchain-google-genai" },
-    { name = "langchain-litellm" },
-    { name = "langchain-openai" },
-    { name = "langchain-text-splitters" },
-    { name = "langgraph" },
-    { name = "langgraph-supervisor" },
-    { name = "langsmith" },
-    { name = "litellm" },
-    { name = "llama-index-core" },
-    { name = "llama-index-llms-azure-openai" },
-    { name = "llama-index-llms-litellm" },
-    { name = "mako" },
-    { name = "marshmallow" },
-    { name = "mcp", extra = ["cli"] },
-    { name = "nltk" },
-    { name = "pillow" },
-    { name = "pyasn1" },
-    { name = "pydantic" },
-    { name = "pygments" },
-    { name = "pyjwt" },
-    { name = "pynacl" },
-    { name = "pypdf" },
-    { name = "python-dotenv" },
-    { name = "python-multipart" },
-    { name = "referencing" },
-    { name = "requests" },
-    { name = "slim-bindings" },
-    { name = "slima2a" },
-    { name = "starlette" },
-    { name = "urllib3" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "agntcy-dir" },
-    { name = "coloredlogs" },
-    { name = "langchain-openai" },
-    { name = "openai" },
-    { name = "openapi-spec-validator" },
-    { name = "prance" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pyyaml" },
-    { name = "sentence-transformers" },
-    { name = "typing-extensions" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "a2a-sdk", specifier = "==0.3.20" },
-    { name = "agntcy-app-sdk", specifier = "==0.5.4" },
-    { name = "agntcy-dir", marker = "extra == 'dev'", specifier = "==1.0.0" },
-    { name = "agntcy-identity-service-sdk", specifier = "==0.0.7" },
-    { name = "aiohttp", specifier = ">=3.13.4" },
-    { name = "authlib", specifier = ">=1.6.11" },
-    { name = "azure-core", specifier = "==1.38.0" },
-    { name = "click", specifier = ">=8.1.8" },
-    { name = "coloredlogs", specifier = ">=15.0.1" },
-    { name = "coloredlogs", marker = "extra == 'dev'", specifier = ">=15.0.1,<16" },
-    { name = "cryptography", specifier = ">=46.0.7" },
-    { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "fastapi", specifier = ">=0.116.0" },
-    { name = "filelock", specifier = ">=3.20.3" },
-    { name = "google-adk", specifier = ">=1.28.1" },
-    { name = "httpx", specifier = ">=0.23.0" },
-    { name = "ioa-observe-sdk", specifier = "==1.0.34" },
-    { name = "jsonschema", specifier = ">=4.0.0" },
-    { name = "langchain", specifier = ">=0.3.27" },
-    { name = "langchain-anthropic", specifier = ">=0.3.13" },
-    { name = "langchain-core", specifier = ">=1.2.28" },
-    { name = "langchain-google-genai", specifier = ">=2.1.4" },
-    { name = "langchain-litellm", specifier = "==0.3.5" },
-    { name = "langchain-openai", specifier = ">=0.3.16" },
-    { name = "langchain-openai", specifier = ">=1.1.14" },
-    { name = "langchain-openai", marker = "extra == 'dev'", specifier = ">=1.1.14" },
-    { name = "langchain-text-splitters", specifier = ">=1.1.2" },
-    { name = "langgraph", specifier = ">=0.4.1" },
-    { name = "langgraph", specifier = ">=1.0.10" },
-    { name = "langgraph-supervisor", specifier = ">=0.0.26" },
-    { name = "langsmith", specifier = ">=0.7.31" },
-    { name = "litellm", specifier = ">=1.83.0,<1.83.6" },
-    { name = "llama-index-core", specifier = "==0.14.9" },
-    { name = "llama-index-llms-azure-openai", specifier = "==0.4.2" },
-    { name = "llama-index-llms-litellm", specifier = "==0.6.3" },
-    { name = "mako", specifier = ">=1.3.11" },
-    { name = "marshmallow", specifier = ">=3.26.2" },
-    { name = "mcp", specifier = ">=1.23.0" },
-    { name = "mcp", extras = ["cli"], specifier = ">=1.10.0" },
-    { name = "nltk", specifier = ">=3.9.4" },
-    { name = "openai", marker = "extra == 'dev'", specifier = ">=2.8.0,<3.0" },
-    { name = "openapi-spec-validator", marker = "extra == 'dev'", specifier = ">=0.8.4" },
-    { name = "pillow", specifier = ">=12.2.0" },
-    { name = "prance", marker = "extra == 'dev'", specifier = ">=25.4.8.0" },
-    { name = "pyasn1", specifier = ">=0.6.3" },
-    { name = "pydantic", specifier = ">=2.11.4" },
-    { name = "pygments", specifier = ">=2.20.0" },
-    { name = "pyjwt", specifier = ">=2.12.0" },
-    { name = "pynacl", specifier = ">=1.6.2" },
-    { name = "pypdf", specifier = ">=6.10.2" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0,<0.24" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0,<5" },
-    { name = "python-dotenv", specifier = ">=1.1.0" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "python-multipart", specifier = ">=0.0.26" },
-    { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.3" },
-    { name = "referencing", specifier = ">=0.28.0" },
-    { name = "requests" },
-    { name = "requests", specifier = ">=2.33.0" },
-    { name = "sentence-transformers", marker = "extra == 'dev'", specifier = ">=5.1.1" },
-    { name = "slim-bindings", specifier = "==1.1.0" },
-    { name = "slima2a", specifier = "==0.3.0" },
-    { name = "starlette", specifier = ">=0.49.1" },
-    { name = "typing-extensions", marker = "extra == 'dev'", specifier = ">=4.12.2,<5" },
-    { name = "urllib3", specifier = ">=2.6.3" },
-    { name = "uvicorn", specifier = ">=0.29.0" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "mako"

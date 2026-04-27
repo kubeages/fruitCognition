@@ -349,7 +349,7 @@ The cognition layer is **additive**: it sits alongside the existing fruit_cognit
 | Read API | `fruit_cognition/agents/agentic-workflows-api/api/routes.py` (or sibling) | New `/cognition/...` routes mounted on the same FastAPI app. | iter 6 |
 | Frontend | `fruit_cognition/frontend/src/` | New `cognition/` page + components, no changes to existing chat. | iter 7 |
 | Persistence | Existing fruit_cognition Postgres deployment | New `cognition_*` tables in the same database. Migrations live under `cognition/db/migrations/`. | iter 16 |
-| Observability | `fruit_cognition/common/llm.py` and existing `ioa_observe` integration | Cognition-specific spans + metrics. Note: under OCP we currently set `OTEL_SDK_DISABLED=true` to dodge the ioa_observe NonRecordingSpan crash — re-enabling tracing for cognition spans will require either pinning the SDK to a working version or using a separate exporter. | iter 17 |
+| Observability | `fruit_cognition/common/llm.py` and existing `ioa_observe` integration | Cognition-specific spans + metrics. The `ioa-observe-sdk` was pinned to `>=1.0.41` (via `agntcy-app-sdk>=0.5.5`), which fixes the `NonRecordingSpan.attributes` regression that previously forced `OTEL_SDK_DISABLED=true` on OCP. | iter 17 |
 
 ### Process layout
 
